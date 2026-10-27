@@ -32,6 +32,7 @@ import {
   computeTripFinance,
   FreightTotals,
 } from "@/src/utils/freight";
+import { htmlToPdf } from "@/src/utils/pdf";
 function dateRange(t: Trip): string {
   return t.end_date && t.end_date !== t.date
     ? `${formatDateBR(t.date)} → ${formatDateBR(t.end_date)}`
@@ -397,7 +398,7 @@ export default function RelatoriosScreen() {
     const companyHtml = await companyPdfHeaderHtml(companyName, companyLogoUrl);
     const htmlWithCompany = companyHtml ? html.replace("<body>", `<body>${companyHtml}`) : html;
     try {
-      const { uri } = await Print.printToFileAsync({ html: htmlWithCompany });
+      const { uri } = await htmlToPdf(htmlWithCompany);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, {
           mimeType: "application/pdf",

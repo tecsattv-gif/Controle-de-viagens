@@ -17,6 +17,7 @@ import { formatDateBR, money, toISODate } from "@/src/utils/format";
 import { useReportHeader } from "@/src/utils/reportHeader";
 import { companyPdfHeaderHtml } from "@/src/utils/reportHeader";
 import { useUndoableDelete } from "@/src/context/UndoDelete";
+import { htmlToPdf } from "@/src/utils/pdf";
 
 function esc(s: string): string {
   return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -145,7 +146,7 @@ export default function RelatorioFretesScreen() {
       </table>
     </body></html>`;
     try {
-      const { uri } = await Print.printToFileAsync({ html });
+      const { uri } = await htmlToPdf(html);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: "application/pdf", dialogTitle: t("Relatório de Fretes"), UTI: "com.adobe.pdf" });
       }

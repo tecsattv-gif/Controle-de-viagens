@@ -17,6 +17,7 @@ import { DateInputField } from "@/src/components/DateInputField";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, money, toISODate } from "@/src/utils/format";
+import { htmlToPdf } from "@/src/utils/pdf";
 
 function esc(s: string): string {
   return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -128,7 +129,7 @@ export default function RelatorioGeralScreen() {
       <div class="grand"><span>${t("Saldo")}</span><span class="val">${money(s.balance)}</span></div>
     </body></html>`;
     try {
-      const { uri } = await Print.printToFileAsync({ html });
+      const { uri } = await htmlToPdf(html);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: "application/pdf", dialogTitle: t("Relatório Geral"), UTI: "com.adobe.pdf" });
       }

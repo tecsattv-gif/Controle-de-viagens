@@ -18,6 +18,7 @@ import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, formatInt } from "@/src/utils/format";
 import { companyPdfHeaderHtml, useReportHeader } from "@/src/utils/reportHeader";
+import { htmlToPdf } from "@/src/utils/pdf";
 
 function esc(s: string): string {
   return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -79,7 +80,7 @@ export default function OsHistoricoScreen() {
       <ul>${services}</ul>
     </body></html>`;
     try {
-      const { uri } = await Print.printToFileAsync({ html });
+      const { uri } = await htmlToPdf(html);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, {
           mimeType: "application/pdf",

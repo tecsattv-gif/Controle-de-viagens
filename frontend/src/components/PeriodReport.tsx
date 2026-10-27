@@ -14,6 +14,7 @@ import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, toISODate } from "@/src/utils/format";
 import { companyPdfHeaderHtml, useReportHeader } from "@/src/utils/reportHeader";
+import { htmlToPdf } from "@/src/utils/pdf";
 
 export type ReportRow = { left: string; right?: string; infos?: string[] };
 export type ReportTotal = { label: string; value: string };
@@ -137,7 +138,7 @@ export function PeriodReport<T>({
       ${grand}
     </body></html>`;
     try {
-      const { uri } = await Print.printToFileAsync({ html });
+      const { uri } = await htmlToPdf(html);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: "application/pdf", dialogTitle: title, UTI: "com.adobe.pdf" });
       }

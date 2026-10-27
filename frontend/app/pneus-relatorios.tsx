@@ -16,6 +16,7 @@ import { configPositions, positionLabel, treadState } from "@/src/utils/axleMaps
 import { formatDateBR, formatInt, toISODate } from "@/src/utils/format";
 import { companyPdfHeaderHtml, useReportHeader } from "@/src/utils/reportHeader";
 import { tireKmRun, vehicleCurrentKm } from "@/src/utils/tireKm";
+import { htmlToPdf } from "@/src/utils/pdf";
 
 function esc(s: string): string {
   return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -27,7 +28,7 @@ body{color:#1A1C19;font-size:11pt;margin:28px}
 .sub{color:#555;font-size:10pt;margin-bottom:12px}
 .vh{border:1px solid #e3e3e3;border-radius:8px;padding:6px 10px;margin:4px 0 12px 0;font-size:10pt;line-height:1.5}
 .vh .k{font-weight:800}
-table{width:100%;border-collapse:collapse;font-size:10pt;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:10pt;margin-top:8px;table-layout:fixed}
 th,td{border:1px solid #e3e3e3;padding:6px 8px;text-align:left}
 th{background:#f4f4f4}
 .st-green{color:#1B7F2E;font-weight:700}.st-yellow{color:#B38600;font-weight:700}.st-red{color:#C62828;font-weight:700}`;
@@ -63,7 +64,7 @@ export default function PneusRelatoriosScreen() {
 
   const share = async (html: string) => {
     try {
-      const { uri } = await Print.printToFileAsync({ html });
+      const { uri } = await htmlToPdf(html, { landscape: true });
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: "application/pdf", UTI: "com.adobe.pdf" });
       }

@@ -38,6 +38,7 @@ import { confirmDelete as confirmDeleteHelper } from "@/src/utils/confirmDelete"
 import { useUndoableDelete } from "@/src/context/UndoDelete";
 import { useReportHeader } from "@/src/utils/reportHeader";
 import { companyPdfHeaderHtml } from "@/src/utils/reportHeader";
+import { htmlToPdf } from "@/src/utils/pdf";
 
 function escapeHtml(s: string): string {
   return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -195,7 +196,7 @@ export default function RelatorioAbastecimentosScreen() {
     const companyHtml = await companyPdfHeaderHtml(companyName, companyLogoUrl);
     const html = companyHtml ? html0.replace("<body>", `<body>${companyHtml}`) : html0;
     try {
-      const { uri } = await Print.printToFileAsync({ html });
+      const { uri } = await htmlToPdf(html);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, {
           mimeType: "application/pdf",
