@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   AI_PROVIDERS,
   AIMessage,
+  AIBuiltinKeyError,
   AINotConfiguredError,
   AIProvider,
   clearAIMessages,
@@ -96,8 +97,8 @@ export default function AssistenteIAScreen() {
       );
     } catch (e: any) {
       setMessages((m) => m.filter((x) => !(x.id === replyId && !x.content)));
-      if (e instanceof AINotConfiguredError) setShowConfig(true);
-      setError(e?.message?.startsWith("Erro") || !e?.message
+      if (e instanceof AINotConfiguredError || e instanceof AIBuiltinKeyError) setShowConfig(true);
+      setError(e instanceof AIBuiltinKeyError ? t(e.message) : e?.message?.startsWith("Erro") || !e?.message
         ? t("Não foi possível obter resposta da IA. Verifique a internet e tente novamente.")
         : e.message);
     } finally {
@@ -152,7 +153,9 @@ export default function AssistenteIAScreen() {
             <View style={styles.config} testID="ai-config-panel">
               <Text style={styles.configTitle}>{t("Configurar a IA")}</Text>
               <Text style={styles.configText}>
-                {t("O assistente usa a sua própria chave de IA. As perguntas vão direto do telefone para o serviço escolhido.")}
+                {hasBuiltinKey()
+                  ? t("O assistente já vem pronto a usar. Se preferir, pode usar a sua própria chave de IA: ela passa a ter prioridade.")
+                  : t("O assistente usa a sua própria chave de IA. As perguntas vão direto do telefone para o serviço escolhido.")}
               </Text>
               <View style={styles.chips}>
                 {(Object.keys(AI_PROVIDERS) as AIProvider[]).map((p) => (

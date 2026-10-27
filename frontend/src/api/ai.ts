@@ -142,6 +142,8 @@ async function systemPrompt(): Promise<string> {
 }
 
 export class AINotConfiguredError extends Error {}
+/** A chave que vem no app esgotou a cota grátis (ou deixou de funcionar). */
+export class AIBuiltinKeyError extends Error {}
 
 function friendlyError(status: number, detail: string): string {
   if (status === 401 || status === 403) return "Chave da IA inválida ou sem permissão. Confira a chave nas configurações do assistente.";
@@ -155,7 +157,8 @@ export async function streamAIChat(text: string, onDelta: (chunk: string) => voi
   const question = text.trim().slice(0, 2000);
   if (!question) throw new Error("Escreva uma pergunta.");
   let cfg = await getAIConfig();
-  if (!cfg.apiKey && BUILTIN_GEMINI_KEY) {
+  const usingBuiltin = !cfg.apiKey && !!BUILTIN_GEMINI_KEY;
+  if (usingBuiltin) {
     cfg = { provider: "gemini", model: cfg.provider === "gemini" ? cfg.model : "", apiKey: BUILTIN_GEMINI_KEY };
   }
   if (!cfg.apiKey) throw new AINotConfiguredError("Configure a chave da IA para usar o assistente.");
@@ -193,6 +196,8 @@ export async function streamAIChat(text: string, onDelta: (chunk: string) => voi
     } catch {
       // ignore
     }
+    if (usingBuiltin && res.status === 429) throw new AIBuiltinKeyError("O limite gratuito do assistente acabou por agora. Para continuar, use a sua própria chave de IA (o Gemini tem faixa grátis).");
+    if (usingBuiltin && (res.status === 401 || res.status === 403)) throw new AIBuiltinKeyError("A chave de IA do aplicativo não está a funcionar. Para continuar, use a sua própria chave de IA.");
     throw new Error(friendlyError(res.status, detail));
   }
 
