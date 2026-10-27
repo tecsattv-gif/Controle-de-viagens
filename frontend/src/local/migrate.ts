@@ -69,6 +69,10 @@ async function storeLegacyToken(value: string | null): Promise<void> {
 }
 
 export class SessionExpiredError extends Error {}
+/** O telefone já recebeu os dados de outra conta. */
+export class OtherAccountError extends Error {}
+
+const ACCOUNT_KEY = "migration_account";
 
 function headers(token?: string | null): Record<string, string> {
   const h: Record<string, string> = { "Content-Type": "application/json" };
@@ -233,6 +237,16 @@ export async function importFromServer(
   tick("Conta");
   const me = await getJson("/auth/me", token);
 
+  // Cada telefone recebe os dados de UMA só conta: a primeira importada.
+  const owner = await load<{ user_id?: string; email?: string } | null>(ACCOUNT_KEY, null);
+  if (owner?.user_id && me?.user_id && owner.user_id !== me.user_id) {
+    await storeLegacyToken(null);
+    throw new OtherAccountError(
+      `Este telefone já recebeu os dados da conta ${owner.email || ""}. ` +
+        "Para importar outra conta, use outro telefone.",
+    );
+  }
+
   // 1) Baixa tudo primeiro (se falhar no meio, nada é gravado pela metade).
   const fetched: Record<string, any[]> = {};
   for (const [path, key] of LISTS) {
@@ -293,6 +307,7 @@ export async function importFromServer(
     company_logo_path: logo || settings.company_logo_path || "",
   });
 
+  await save(ACCOUNT_KEY, { user_id: me?.user_id || "", email: me?.email || "" });
   await markMigration({ done: true, at: nowIso(), source: "server", counts });
   // A sessão antiga não é mais necessária.
   await storeLegacyToken(null);

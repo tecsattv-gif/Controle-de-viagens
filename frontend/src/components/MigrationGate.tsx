@@ -28,6 +28,7 @@ import {
   legacyServerConfigured,
   loadLegacyToken,
   markMigration,
+  OtherAccountError,
   Progress,
   SessionExpiredError,
 } from "@/src/local/migrate";
@@ -63,6 +64,9 @@ export function MigrationGate({ children }: { children: React.ReactNode }) {
       } catch (e: any) {
         if (e instanceof SessionExpiredError) {
           setError(t("A sessão expirou. Entre com a sua conta para trazer os dados."));
+          setPhase("login");
+        } else if (e instanceof OtherAccountError) {
+          setError(e.message);
           setPhase("login");
         } else {
           setError(e?.message || t("Não foi possível baixar os dados."));
