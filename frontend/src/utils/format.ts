@@ -18,6 +18,13 @@ export function parseISODate(iso: string): Date {
   return new Date(y || 1970, (m || 1) - 1, day || 1);
 }
 
+// Shift a "yyyy-mm-dd" date by N days (delta can be negative).
+export function shiftDay(iso: string, delta: number): string {
+  const d = parseISODate(iso);
+  d.setDate(d.getDate() + delta);
+  return toISODate(d);
+}
+
 export function formatDateBR(iso: string): string {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y.slice(2)}`;

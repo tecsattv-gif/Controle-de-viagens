@@ -49,6 +49,8 @@ import {
   money,
   monthKey,
   shiftMonth,
+  shiftDay,
+  formatDateBR,
   todayISODate,
 } from "@/src/utils/format";
 
@@ -83,17 +85,46 @@ function StatCard({
   value,
   unit,
   testID,
+  onPrev,
+  onNext,
+  onLabelPress,
 }: {
   label: string;
   value: string;
   unit?: string;
   testID?: string;
+  onPrev?: () => void;
+  onNext?: () => void;
+  onLabelPress?: () => void;
 }) {
   const styles = useStyles();
+  const { colors } = useTheme();
   const size = statValueSize(value);
+  const nav = !!onPrev;
   return (
     <View style={styles.statCard} testID={testID}>
-      <Text style={styles.statLabel}>{label}</Text>
+      {nav ? (
+        <View style={styles.statNav}>
+          <Pressable onPress={onPrev} hitSlop={12} testID={`${testID}-prev`} accessibilityRole="button">
+            <CaretLeft size={16} color={colors.onSurface} weight="bold" />
+          </Pressable>
+          <Pressable onPress={onLabelPress} disabled={!onLabelPress} style={styles.statNavLabel}>
+            <Text style={[styles.statLabel, styles.statLabelNav]} testID={`${testID}-label`}>{label}</Text>
+          </Pressable>
+          <Pressable
+            onPress={onNext}
+            disabled={!onNext}
+            hitSlop={12}
+            testID={`${testID}-next`}
+            accessibilityRole="button"
+            style={{ opacity: onNext ? 1 : 0.25 }}
+          >
+            <CaretRight size={16} color={colors.onSurface} weight="bold" />
+          </Pressable>
+        </View>
+      ) : (
+        <Text style={styles.statLabel}>{label}</Text>
+      )}
       <View style={styles.statValueRow}>
         <Text style={[styles.statValue, { fontSize: size, lineHeight: size + 2 }]}>{value}</Text>
         {unit ? <Text style={styles.statUnit}>{unit}</Text> : null}
@@ -147,6 +178,9 @@ export default function ResumoScreen() {
   const driver = driverData?.[0];
   const today = todayISODate();
   const [mk, setMk] = useState(currentMonthKey());
+  // Dia mostrado no card "KM de hoje" (navegável com as setas).
+  const [day, setDay] = useState(today);
+  const isToday = day === today;
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [showVehiclePicker, setShowVehiclePicker] = useState(false);
 
@@ -189,12 +223,12 @@ export default function ResumoScreen() {
       monthKm += t.km;
       tripsThisMonth += 1;
     }
-    if (t.date === today) todayKm += t.km;
+    if (t.date === day) todayKm += t.km;
   }
 
-  // Soma o KM do dia dos controles diários de hoje ao "KM de hoje".
+  // Soma o KM do dia dos controles diários do dia selecionado.
   for (const d of dailyLogData ?? []) {
-    if (d.date === today) todayKm += dailyKm(d);
+    if (d.date === day) todayKm += dailyKm(d);
   }
 
   // Controle Mensal de KM: quando existe um registro para o MÊS SELECIONADO,
@@ -498,7 +532,15 @@ export default function ResumoScreen() {
 
         {/* Metrics */}
         <View style={styles.metricsRow}>
-          <StatCard label={t("KM DE HOJE")} value={formatInt(todayKm)} unit="km" testID="today-km" />
+          <StatCard
+            label={isToday ? t("KM DE HOJE") : t("KM DE {date}", { date: formatDateBR(day) })}
+            value={formatInt(todayKm)}
+            unit="km"
+            testID="today-km"
+            onPrev={() => setDay((d) => shiftDay(d, -1))}
+            onNext={isToday ? undefined : () => setDay((d) => shiftDay(d, 1))}
+            onLabelPress={isToday ? undefined : () => setDay(today)}
+          />
           <StatCard label={t("VIAGENS NO MÊS")} value={String(tripsThisMonth)} testID="trips-month" />
         </View>
 
@@ -848,6 +890,15 @@ const useStyles = makeStyles((colors) => ({
     minHeight: 30,
     textAlign: "center",
   },
+  statNav: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    alignSelf: "stretch",
+    justifyContent: "space-between",
+    gap: 4,
+  },
+  statNavLabel: { flex: 1 },
+  statLabelNav: { paddingTop: 1 },
   statValueRow: {
     flexDirection: "row",
     alignItems: "flex-end",
