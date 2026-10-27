@@ -1,7 +1,8 @@
 // Tela exibida UMA VEZ, na primeira abertura da versão sem servidor:
 // traz os dados da conta online antiga para o telefone.
 //  - Se a sessão antiga ainda estiver salva no aparelho, importa sozinho.
-//  - Senão pergunta se a pessoa já tinha conta; se sim, pede login só para trazer os dados.
+//  - Senão abre direto o login da conta antiga (e-mail/senha ou Google), com a
+//    opção "Não, começar do zero" para quem nunca teve conta.
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -16,6 +17,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { confirmDelete } from "@/src/utils/confirmDelete";
 
 import { useAuth } from "@/src/context/AuthContext";
 import { useT } from "@/src/i18n";
@@ -94,7 +97,7 @@ export function MigrationGate({ children }: { children: React.ReactNode }) {
       }
       const token = await loadLegacyToken();
       if (token) runImport(token);
-      else setPhase("ask");
+      else setPhase("login");
     })();
   }, [runImport]);
 
@@ -186,6 +189,7 @@ export function MigrationGate({ children }: { children: React.ReactNode }) {
           {phase === "login" ? (
             <>
               <Text style={styles.subtitle}>{t("Entre na sua conta antiga")}</Text>
+              <Text style={styles.body}>{t("Novidade: agora os seus dados ficam guardados só neste telefone.")}</Text>
               <Text style={styles.body}>{t("Só uma vez, para copiar os seus dados para este telefone.")}</Text>
               <TextInput
                 value={email}
@@ -215,8 +219,21 @@ export function MigrationGate({ children }: { children: React.ReactNode }) {
               <Pressable style={[styles.secondaryBtn, busy && styles.disabled]} onPress={loginGoogle} disabled={busy} testID="migration-google">
                 <Text style={styles.secondaryText}>{t("Continuar com Google")}</Text>
               </Pressable>
-              <Pressable style={styles.linkBtn} onPress={() => setPhase("ask")} disabled={busy} testID="migration-back">
-                <Text style={styles.linkText}>{t("Voltar")}</Text>
+              <Pressable
+                style={styles.linkBtn}
+                onPress={() =>
+                  confirmDelete({
+                    title: t("Começar do zero?"),
+                    message: t("Os dados da conta antiga não serão trazidos agora. Pode trazê-los depois em Cadastros → Backup."),
+                    confirmText: t("Começar do zero"),
+                    cancelText: t("Cancelar"),
+                    onConfirm: skip,
+                  })
+                }
+                disabled={busy}
+                testID="migration-no"
+              >
+                <Text style={styles.linkText}>{t("Não, começar do zero")}</Text>
               </Pressable>
             </>
           ) : null}
