@@ -1,0 +1,142 @@
+{
+  "app_name": "Controle de Viagens",
+  "personality": "7 Dark-First Utility",
+  "personality_one_liner": "A high-visibility, tactical command center optimized for nocturnal driving and zero-friction data entry.",
+  "color": {
+    "surface": "#121212",
+    "onSurface": "#FFFFFF",
+    "surfaceSecondary": "#1E1E1E",
+    "onSurfaceSecondary": "#E0E0E0",
+    "surfaceTertiary": "#2A2A2A",
+    "onSurfaceTertiary": "#D6D6D6",
+    "surfaceInverse": "#F5F5F5",
+    "onSurfaceInverse": "#121212",
+    "brand": "#FF6D00",
+    "brandPrimary": "#FF6D00",
+    "onBrandPrimary": "#000000",
+    "brandSecondary": "#E65C00",
+    "onBrandSecondary": "#000000",
+    "brandTertiary": "#331D00",
+    "onBrandTertiary": "#FFA040",
+    "success": "#00C853",
+    "onSuccess": "#000000",
+    "warning": "#FFD600",
+    "onWarning": "#000000",
+    "error": "#FF3D00",
+    "onError": "#000000",
+    "info": "#29B6F6",
+    "onInfo": "#000000",
+    "border": "#333333",
+    "borderStrong": "#4F4F4F",
+    "divider": "#2C2C2C",
+    "muted": "#9E9E9E",
+    "onBrand": "#000000"
+  },
+  "typography": {
+    "displayFontFamily": "Barlow Condensed",
+    "textFontFamily": "DM Sans",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Use sm/md spacing strictly. Interface must feel like a live operational surface with fast scanning and immediate hierarchy.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 4,
+    "md": 8,
+    "lg": 12,
+    "pill": 999
+  },
+  "shadow_tier": "0",
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": false,
+    "do's": [
+      "Use solid surfaceSecondary and borders instead to maintain clarity"
+    ],
+    "dont's": [
+      "Do not use blur or glassmorphism on dense data screens or in Dark-First Utility as clarity beats aesthetic"
+    ]
+  },
+  "haptics": {
+    "primary_button_press": "impactMedium",
+    "tab_switch": "selection",
+    "switch_toggle": "impactLight",
+    "delete_swipe_commit": "impactHeavy"
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Resumo",
+      "purpose": "A command-center dashboard for a quick glance at daily and monthly KM progress.",
+      "states": {
+        "loading": "Centered dark spinner",
+        "empty": "No trips logged this month yet. Big 'Nova Viagem' CTA.",
+        "error": "Failed to load metrics. Retry button."
+      },
+      "layout": "Top hero section featuring a dark dashboard photo background with a vertical gradient scrim (transparent to 80% surfaceInverse/black). Large display typography (Barlow Condensed) showing total 'KM do Mês'. Below, a 2-column grid for 'KM de Hoje' and 'Viagens no Mês' using metric cards. Stacked modules with high-contrast orange progress indicators."
+    },
+    {
+      "name": "Nova Viagem",
+      "purpose": "A high-contrast, fast-entry form for logging a new trip with minimal friction.",
+      "states": {
+        "loading": "Spinner over submit button",
+        "empty": "Default form state",
+        "error": "Validation errors highlighted with red borders."
+      },
+      "layout": "Single-column scroll view. Labels above inputs (never floating). Use surfaceTertiary for input backgrounds with borderStrong for focus states. Group inputs logically: Date/Time (Start & End), Odometer (KM Inicial & Final), and Locations (Carregamento & Descanso). Primary CTA 'Salvar Viagem' is sticky at the bottom over the keyboard."
+    },
+    {
+      "name": "Histórico",
+      "purpose": "Review and manage past trips in a clear, chronologically stacked list.",
+      "states": {
+        "loading": "Skeleton rows",
+        "empty": "Dark atmospheric empty state background with text 'Nenhuma viagem registrada'.",
+        "error": "Failed to load history."
+      },
+      "layout": "Sticky header with a month filter. Full-width stacked trip cards separated by dividers (shadow 0). Each card displays the Date prominently, followed by a compact grid of Start/End time, Calculated KM Total, and locations. A swipe-to-delete action reveals a high-contrast red background with a delete icon."
+    }
+  ],
+  "images": {
+    "dashboard_hero_bg": {
+      "url": "https://images.unsplash.com/photo-1629881635342-c1272d45d0fa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHx0cnVjayUyMGRhc2hib2FyZCUyMG5pZ2h0fGVufDB8fHx8MTc4OTMwOTYwNnww&ixlib=rb-4.1.0&q=85",
+      "alt": "Truck dashboard during nighttime"
+    },
+    "empty_state_history": {
+      "url": "https://images.unsplash.com/photo-1495709165577-351d14380bdd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwxfHxlbXB0eSUyMHJvYWQlMjBuaWdodHxlbnwwfHx8fDE3ODkzMDk2MDZ8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Empty road at night under street lamps"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the Dark-First Utility (Personality 7) guidelines. Use #121212 as the base surface, avoiding pure black to prevent contrast fatigue during long driving sessions.",
+    "Do NOT use glassmorphism or blur effects. Use solid surfaceSecondary and borders for separation to maintain operational clarity and high performance.",
+    "Prioritize legibility and large touch targets (minimum 44x44pt). Drivers may use this in a moving vehicle or under stress.",
+    "Ensure the hero image on the Resumo screen uses a top-to-bottom gradient scrim (transparent to 80% or more of #121212) so the overlaid 'KM do Mês' metric is extremely legible.",
+    "Use Barlow Condensed for all numeric metrics and display titles to create a technical, dashboard-like feel. Use DM Sans for form labels and body text.",
+    "The 'Nova Viagem' CTA must be pinned at the bottom of the screen above the safe area, remaining visible while the user scrolls through the form."
+  ]
+}
