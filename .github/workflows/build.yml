@@ -42,6 +42,8 @@ jobs:
             app.expo.name = "Viagens TESTE";
             app.expo.android.package = app.expo.android.package + ".teste";
             app.expo.ios.bundleIdentifier = app.expo.ios.bundleIdentifier + ".teste";
+            // Esquema próprio: senão o retorno do login Google abre o app oficial.
+            app.expo.scheme = "frontendteste";
             delete app.expo.extra.eas;
             fs.writeFileSync("app.json", JSON.stringify(app, null, 2));
           '
