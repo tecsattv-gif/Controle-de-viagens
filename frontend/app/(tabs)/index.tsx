@@ -237,6 +237,18 @@ export default function ResumoScreen() {
     if (result < tripBasedMonthKm) result = tripBasedMonthKm;
     monthKm = result;
     totalKm = result;
+  } else {
+    // Sem Controle Mensal: o KM do mês vem dos controles diários do mês
+    // (ou das viagens, se derem mais).
+    let sumDailyMonth = 0;
+    let sumDailyAll = 0;
+    for (const d of dailyLogData ?? []) {
+      const k = dailyKm(d);
+      sumDailyAll += k;
+      if (monthKey(d.date) === mk) sumDailyMonth += k;
+    }
+    monthKm = Math.max(monthKm, sumDailyMonth);
+    totalKm = Math.max(totalKm, sumDailyAll);
   }
   const monthlyOpen =
     !!monthlyForSelected && (!monthlyForSelected.end_km || monthlyForSelected.end_km === 0);
