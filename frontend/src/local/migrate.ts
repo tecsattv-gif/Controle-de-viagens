@@ -20,9 +20,9 @@ import { load, newId, nowIso, save } from "./db";
 
 WebBrowser.maybeCompleteAuthSession();
 
-// ⚠️ Preencha com o endereço do servidor atual caso o build não defina
-// EXPO_PUBLIC_BACKEND_URL (ex.: "https://meu-app.emergent.host").
-export const LEGACY_BACKEND_URL = "https://app-builder-demo-579.preview.emergentagent.com";
+// Endereço de PRODUÇÃO do servidor antigo (o mesmo gravado no APK oficial 1.0.29).
+// Não usar o endereço de pré-visualização (*.preview.emergentagent.com): lá não há dados.
+export const LEGACY_BACKEND_URL = "https://app-builder-demo-579.emergent.host";
 
 const BASE = (process.env.EXPO_PUBLIC_BACKEND_URL || LEGACY_BACKEND_URL || "").replace(/\/+$/, "");
 const API = `${BASE}/api`;
@@ -91,13 +91,33 @@ async function errorDetail(res: Response): Promise<string> {
   } catch {
     // ignore
   }
-  return `Erro ${res.status}`;
+  return statusMessage(res.status);
+}
+
+// Mensagens claras quando o servidor não devolve um texto de erro próprio.
+function statusMessage(status: number): string {
+  if (status === 404) return "Servidor da conta antiga não encontrado. Tente novamente mais tarde.";
+  if (status === 401 || status === 403) return "E-mail ou senha incorretos, ou a sessão expirou.";
+  if (status === 429) return "Muitas tentativas. Aguarde alguns minutos e tente de novo.";
+  if (status >= 500) return "O servidor da conta antiga está com problemas. Tente novamente mais tarde.";
+  return `Erro ${status} ao falar com o servidor da conta antiga.`;
+}
+
+const OFFLINE_MSG = "Sem ligação com o servidor da conta antiga. Verifique a internet e tente de novo.";
+
+// fetch que troca o erro genérico de rede ("Network request failed") por uma mensagem clara.
+async function safeFetch(url: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init);
+  } catch {
+    throw new Error(OFFLINE_MSG);
+  }
 }
 
 async function postAuth(path: string, body: Record<string, unknown>) {
   if (!BASE) throw new Error("Endereço do servidor antigo não configurado.");
   await loadDeviceId();
-  const res = await fetch(`${API}${path}`, {
+  const res = await safeFetch(`${API}${path}`, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify({ ...body, device_id: getDeviceId() }),
@@ -156,7 +176,7 @@ export async function consumeWebGoogleRedirect(): Promise<string | null> {
 // Download dos dados
 // ---------------------------------------------------------------------------
 async function getJson(path: string, token: string): Promise<any> {
-  const res = await fetch(`${API}${path}`, { headers: headers(token) });
+  const res = await safeFetch(`${API}${path}`, { headers: headers(token) });
   if (res.status === 401) throw new SessionExpiredError("Sessão expirada");
   if (!res.ok) throw new Error(await errorDetail(res));
   return res.json();
