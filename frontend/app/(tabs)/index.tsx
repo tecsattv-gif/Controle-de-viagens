@@ -80,6 +80,16 @@ function statValueSize(value: string): number {
   return 16;
 }
 
+// "yyyy-mm" -> primeiro e último dia do mês ("yyyy-mm-dd").
+function firstDayOfMonth(mk: string): string {
+  return `${mk}-01`;
+}
+function lastDayOfMonth(mk: string): string {
+  const [y, m] = mk.split("-").map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return `${mk}-${String(last).padStart(2, "0")}`;
+}
+
 function StatCard({
   label,
   value,
@@ -88,7 +98,9 @@ function StatCard({
   onPrev,
   onNext,
   onLabelPress,
+  navigable,
 }: {
+  navigable?: boolean;
   label: string;
   value: string;
   unit?: string;
@@ -100,12 +112,19 @@ function StatCard({
   const styles = useStyles();
   const { colors } = useTheme();
   const size = statValueSize(value);
-  const nav = !!onPrev;
+  const nav = !!navigable || !!onPrev;
   return (
     <View style={styles.statCard} testID={testID}>
       {nav ? (
         <View style={styles.statNav}>
-          <Pressable onPress={onPrev} hitSlop={12} testID={`${testID}-prev`} accessibilityRole="button">
+          <Pressable
+            onPress={onPrev}
+            disabled={!onPrev}
+            hitSlop={12}
+            testID={`${testID}-prev`}
+            accessibilityRole="button"
+            style={{ opacity: onPrev ? 1 : 0.25 }}
+          >
             <CaretLeft size={16} color={colors.onSurface} weight="bold" />
           </Pressable>
           <Pressable onPress={onLabelPress} disabled={!onLabelPress} style={styles.statNavLabel}>
@@ -210,6 +229,22 @@ export default function ResumoScreen() {
     AsyncStorage.setItem(SELECTED_VEHICLE_KEY, id);
   };
 
+  // O cartão "KM de…" mostra sempre um dia do mês escolhido: hoje no mês
+  // atual; nos outros, o último dia com registro (ou o último dia do mês).
+  const defaultDay = (m: string): string => {
+    if (m === monthKey(today)) return today;
+    let last = "";
+    for (const d of dailyLogData ?? []) if (monthKey(d.date) === m && d.date > last) last = d.date;
+    for (const tr of trips) if (monthKey(tr.date) === m && tr.date > last) last = tr.date;
+    if (last) return last;
+    return m > monthKey(today) ? firstDayOfMonth(m) : lastDayOfMonth(m);
+  };
+  const changeMonth = (delta: number) => {
+    const next = shiftMonth(mk, delta);
+    setMk(next);
+    setDay(defaultDay(next));
+  };
+
   const selectedVehicle =
     vehicles.find((v) => v.id === selectedVehicleId) ?? vehicles[0];
 
@@ -224,6 +259,26 @@ export default function ResumoScreen() {
       tripsThisMonth += 1;
     }
     if (t.date === day) todayKm += t.km;
+  }
+
+  // "Distância total registrada" = sempre o total de todos os meses:
+  // maior KM registrado − menor KM registrado (controles diários, viagens e
+  // controle mensal), nunca abaixo da soma dos KM das viagens.
+  {
+    let min = Infinity;
+    let max = -Infinity;
+    const add = (...kms: (number | undefined | null)[]) => {
+      for (const k of kms) {
+        if (k && k > 0) {
+          min = Math.min(min, k);
+          max = Math.max(max, k);
+        }
+      }
+    };
+    for (const d of dailyLogData ?? []) add(d.start_km, d.end_km);
+    for (const tr of trips) add(tr.km_start, tr.km_end);
+    for (const m of monthlyData ?? []) add(m.start_km, m.end_km);
+    if (max > min) totalKm = Math.max(totalKm, max - min);
   }
 
   // Soma o KM do dia dos controles diários do dia selecionado.
@@ -270,7 +325,6 @@ export default function ResumoScreen() {
     // Nunca ficar abaixo do KM já rodado pelas viagens do mês.
     if (result < tripBasedMonthKm) result = tripBasedMonthKm;
     monthKm = result;
-    totalKm = result;
   } else {
     // Sem Controle Mensal: KM do mês = maior KM registrado no mês (o último)
     // − menor KM registrado no mês, usando controles diários e viagens.
@@ -291,7 +345,6 @@ export default function ResumoScreen() {
       return max > min ? max - min : 0;
     };
     monthKm = Math.max(monthKm, range(true));
-    totalKm = Math.max(totalKm, range(false));
   }
   const monthlyOpen =
     !!monthlyForSelected && (!monthlyForSelected.end_km || monthlyForSelected.end_km === 0);
@@ -488,7 +541,7 @@ export default function ResumoScreen() {
             </View>
             <View style={styles.monthNav}>
               <Pressable
-                onPress={() => setMk((m) => shiftMonth(m, -1))}
+                onPress={() => changeMonth(-1)}
                 hitSlop={10}
                 testID="month-prev"
                 accessibilityRole="button"
@@ -499,7 +552,7 @@ export default function ResumoScreen() {
                 {t("RESUMO DE {month}", { month: formatMonthLabel(mk) })}
               </Text>
               <Pressable
-                onPress={() => setMk((m) => shiftMonth(m, 1))}
+                onPress={() => changeMonth(1)}
                 hitSlop={10}
                 testID="month-next"
                 accessibilityRole="button"
@@ -537,9 +590,10 @@ export default function ResumoScreen() {
             value={formatInt(todayKm)}
             unit="km"
             testID="today-km"
-            onPrev={() => setDay((d) => shiftDay(d, -1))}
-            onNext={isToday ? undefined : () => setDay((d) => shiftDay(d, 1))}
-            onLabelPress={isToday ? undefined : () => setDay(today)}
+            onPrev={day <= firstDayOfMonth(mk) ? undefined : () => setDay((d) => shiftDay(d, -1))}
+            onNext={isToday || day >= lastDayOfMonth(mk) ? undefined : () => setDay((d) => shiftDay(d, 1))}
+            onLabelPress={day === defaultDay(mk) ? undefined : () => setDay(defaultDay(mk))}
+            navigable
           />
           <StatCard label={t("VIAGENS NO MÊS")} value={String(tripsThisMonth)} testID="trips-month" />
         </View>
