@@ -238,17 +238,26 @@ export default function ResumoScreen() {
     monthKm = result;
     totalKm = result;
   } else {
-    // Sem Controle Mensal: o KM do mês vem dos controles diários do mês
-    // (ou das viagens, se derem mais).
-    let sumDailyMonth = 0;
-    let sumDailyAll = 0;
-    for (const d of dailyLogData ?? []) {
-      const k = dailyKm(d);
-      sumDailyAll += k;
-      if (monthKey(d.date) === mk) sumDailyMonth += k;
-    }
-    monthKm = Math.max(monthKm, sumDailyMonth);
-    totalKm = Math.max(totalKm, sumDailyAll);
+    // Sem Controle Mensal: KM do mês = maior KM registrado no mês (o último)
+    // − menor KM registrado no mês, usando controles diários e viagens.
+    const range = (inMonth: boolean) => {
+      let min = Infinity;
+      let max = -Infinity;
+      const add = (date: string, ...kms: (number | undefined)[]) => {
+        if (inMonth && monthKey(date) !== mk) return;
+        for (const k of kms) {
+          if (k && k > 0) {
+            min = Math.min(min, k);
+            max = Math.max(max, k);
+          }
+        }
+      };
+      for (const d of dailyLogData ?? []) add(d.date, d.start_km, d.end_km);
+      for (const tr of trips) add(tr.date, tr.km_start, tr.km_end);
+      return max > min ? max - min : 0;
+    };
+    monthKm = Math.max(monthKm, range(true));
+    totalKm = Math.max(totalKm, range(false));
   }
   const monthlyOpen =
     !!monthlyForSelected && (!monthlyForSelected.end_km || monthlyForSelected.end_km === 0);
