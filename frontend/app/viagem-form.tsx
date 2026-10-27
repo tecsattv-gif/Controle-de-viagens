@@ -39,12 +39,16 @@ export default function ViagemFormScreen() {
 
   const [redirected, setRedirected] = useState(false);
 
-  // Se houver uma viagem "em aberto" (sem KM final), abre-a para edição.
+  // Igual ao Controle Diário: se a ÚLTIMA viagem estiver incompleta
+  // (falta o local de descarga E o KM final), abre-a para concluir.
   useEffect(() => {
     if (redirected || !trips) return;
-    const open = [...trips]
-      .sort((x, y) => (y.created_at || "").localeCompare(x.created_at || ""))
-      .find((tp) => !tp.km_end || tp.km_end === 0);
+    const last = [...trips].sort((x, y) =>
+      (y.created_at || "").localeCompare(x.created_at || ""),
+    )[0];
+    const noKm = !last?.km_end || last.km_end === 0;
+    const noPlace = !last?.unloading_place || last.unloading_place.trim() === "";
+    const open = last && noKm && noPlace ? last : undefined;
     if (open) {
       setRedirected(true);
       router.replace({ pathname: "/editar-viagem", params: { id: open.id } });
