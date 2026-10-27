@@ -41,6 +41,16 @@ const CFG_KEY = "ai_config";
 const SECRET_KEY = "ai_api_key";
 const MSG_KEY = "ai_messages";
 
+// Chave do Gemini que já vem no app (definida no build pelo segredo
+// GEMINI_API_KEY do GitHub). Use uma chave de um projeto SEM faturamento:
+// assim, mesmo que alguém a extraia do APK, não há custo. Se o utilizador
+// configurar a própria chave, ela tem prioridade.
+const BUILTIN_GEMINI_KEY = (process.env.EXPO_PUBLIC_GEMINI_KEY || "").trim();
+
+export function hasBuiltinKey(): boolean {
+  return !!BUILTIN_GEMINI_KEY;
+}
+
 export async function getAIConfig(): Promise<AIConfig> {
   const cfg = await load<{ provider?: AIProvider; model?: string }>(CFG_KEY, {});
   const provider: AIProvider = cfg.provider === "openai" ? "openai" : "gemini";
@@ -144,7 +154,10 @@ function friendlyError(status: number, detail: string): string {
 export async function streamAIChat(text: string, onDelta: (chunk: string) => void): Promise<void> {
   const question = text.trim().slice(0, 2000);
   if (!question) throw new Error("Escreva uma pergunta.");
-  const cfg = await getAIConfig();
+  let cfg = await getAIConfig();
+  if (!cfg.apiKey && BUILTIN_GEMINI_KEY) {
+    cfg = { provider: "gemini", model: cfg.provider === "gemini" ? cfg.model : "", apiKey: BUILTIN_GEMINI_KEY };
+  }
   if (!cfg.apiKey) throw new AINotConfiguredError("Configure a chave da IA para usar o assistente.");
   const prov = AI_PROVIDERS[cfg.provider];
 

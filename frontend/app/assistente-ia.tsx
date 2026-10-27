@@ -13,6 +13,7 @@ import {
   clearAIMessages,
   fetchAIMessages,
   getAIConfig,
+  hasBuiltinKey,
   saveAIConfig,
   streamAIChat,
 } from "@/src/api/ai";
@@ -62,8 +63,8 @@ export default function AssistenteIAScreen() {
         setProvider(cfg.provider);
         setApiKey(cfg.apiKey);
         setModel(cfg.model);
-        setHasKey(!!cfg.apiKey);
-        if (!cfg.apiKey) setShowConfig(true);
+        setHasKey(!!cfg.apiKey || hasBuiltinKey());
+        if (!cfg.apiKey && !hasBuiltinKey()) setShowConfig(true);
       })
       .catch(() => setError(t("Não foi possível carregar a conversa.")))
       .finally(() => setLoading(false));
@@ -71,9 +72,9 @@ export default function AssistenteIAScreen() {
 
   const saveConfig = async () => {
     await saveAIConfig({ provider, apiKey, model });
-    setHasKey(!!apiKey.trim());
+    setHasKey(!!apiKey.trim() || hasBuiltinKey());
     setError("");
-    if (apiKey.trim()) setShowConfig(false);
+    if (apiKey.trim() || hasBuiltinKey()) setShowConfig(false);
   };
 
   const send = async (raw?: string) => {
