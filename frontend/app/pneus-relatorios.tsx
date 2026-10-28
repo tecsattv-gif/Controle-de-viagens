@@ -23,13 +23,13 @@ function esc(s: string): string {
 }
 
 const BASE_CSS = `*{font-family:-apple-system,Roboto,Arial,sans-serif;box-sizing:border-box}
-body{color:#1A1C19;font-size:11pt;margin:28px}
+body{color:#1A1C19;font-size:10pt;margin:24px}
 .osTitle{color:#E65C00;font-size:16pt;font-weight:800;margin:6px 0 6px 0}
 .sub{color:#555;font-size:10pt;margin-bottom:12px}
 .vh{border:1px solid #e3e3e3;border-radius:8px;padding:6px 10px;margin:4px 0 12px 0;font-size:10pt;line-height:1.5}
 .vh .k{font-weight:800}
-table{width:100%;border-collapse:collapse;font-size:10pt;margin-top:8px;table-layout:fixed}
-th,td{border:1px solid #e3e3e3;padding:6px 8px;text-align:left}
+table{width:100%;border-collapse:collapse;font-size:9pt;margin-top:8px;table-layout:fixed}
+th,td{border:1px solid #e3e3e3;padding:5px 6px;text-align:left}
 th{background:#f4f4f4}
 .st-green{color:#1B7F2E;font-weight:700}.st-yellow{color:#B38600;font-weight:700}.st-red{color:#C62828;font-weight:700}`;
 
@@ -64,7 +64,7 @@ export default function PneusRelatoriosScreen() {
 
   const share = async (html: string) => {
     try {
-      const { uri } = await htmlToPdf(html, { landscape: true });
+      const { uri } = await htmlToPdf(html);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: "application/pdf", UTI: "com.adobe.pdf" });
       }

@@ -127,7 +127,7 @@ export default function PneusHistoricoScreen() {
       .join("");
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>
-      @page { size: A4 landscape; margin: 12mm;
+      @page { size: A4; margin: 10mm;
         @bottom-left { content: "${cssSafe(companyName || "")}"; font-size: 8pt; color: #666; }
         @bottom-center { content: "${cssSafe(t("Emitido em"))} ${cssSafe(emission)}"; font-size: 8pt; color: #666; }
         @bottom-right { content: "${cssSafe(t("Página"))} " counter(page) " ${cssSafe(t("de"))} " counter(pages); font-size: 8pt; color: #666; }
@@ -139,8 +139,8 @@ export default function PneusHistoricoScreen() {
       table.vbox{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:9.5pt}
       table.vbox td{border:1px solid #e3e3e3;padding:5px 8px}
       table.vbox .k{font-weight:800}
-      table.data{width:100%;border-collapse:collapse;font-size:9pt;table-layout:fixed}
-      table.data th,table.data td{border:1px solid #d9d9d9;padding:5px 6px;word-wrap:break-word;overflow:hidden}
+      table.data{width:100%;border-collapse:collapse;font-size:8pt;table-layout:fixed}
+      table.data th,table.data td{border:1px solid #d9d9d9;padding:4px 4px;word-wrap:break-word;overflow:hidden}
       table.data thead th{background:#ececec;font-weight:800;color:#222}
       table.data .compact{background:#fff;font-weight:700;font-size:8.5pt;color:#444;text-align:left;border-bottom:2px solid #E65C00}
       tr{page-break-inside:avoid}
