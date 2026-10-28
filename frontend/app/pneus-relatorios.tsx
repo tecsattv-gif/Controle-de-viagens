@@ -16,6 +16,7 @@ import { configPositions, positionLabel, treadState } from "@/src/utils/axleMaps
 import { formatDateBR, formatInt, toISODate } from "@/src/utils/format";
 import { companyPdfHeaderHtml, useReportHeader } from "@/src/utils/reportHeader";
 import { tireKmRun, vehicleCurrentKm } from "@/src/utils/tireKm";
+import { buildTireReportHtml } from "@/src/utils/tireReportHtml";
 import { htmlToPdf } from "@/src/utils/pdf";
 
 function esc(s: string): string {
@@ -126,27 +127,18 @@ export default function PneusRelatoriosScreen() {
     const currentKm = vehicleCurrentKm(tire.vehicle_id, trips);
     const run = tireKmRun(tire, currentKm);
     const header = await companyPdfHeaderHtml(companyName, companyLogoUrl);
-    const measRows =
-      [...(tire.measurements || [])].sort((a, b) => (a.date || "").localeCompare(b.date || "")).map((m) => `<tr><td>${esc(formatDateBR(m.date))}</td><td>${m.tread_mm} mm</td><td>${esc(m.notes || "—")}</td></tr>`).join("") ||
-      `<tr><td colspan="3">—</td></tr>`;
-    const movRows =
-      [...(tire.movements || [])].sort((a, b) => (a.date || "").localeCompare(b.date || "")).map((mv) => `<tr><td>${esc(formatDateBR(mv.date))}</td><td>${esc(mv.from_position || "—")} → ${esc(mv.to_position || "—")}</td><td>${mv.km ? formatInt(mv.km) : "—"}</td></tr>`).join("") ||
-      `<tr><td colspan="3">—</td></tr>`;
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${BASE_CSS}</style></head><body>
-      ${header}
-      <div class="osTitle">${esc(t("Relatório Individual do Pneu"))}</div>
-      <div class="vh">
-        <div><span class="k">${esc(t("Veículo"))}:</span> ${esc(vehicle ? vehicleName(vehicle) || "—" : "—")}</div>
-        <div><span class="k">${esc(t("Placa do veículo"))}:</span> ${esc(vehicle ? vehicle.truck_plate || "—" : "—")}</div>
-        <div><span class="k">${esc(t("Placas das composições"))}:</span> ${esc(vehicle ? compositionPlates(vehicle) || "—" : "—")}</div>
-      </div>
-      <div class="sub">${esc(t("Número do pneu"))}: ${esc(tire.number || "—")} · ${esc(t("Marca"))}: ${esc(tire.brand || "—")} · ${esc(t("Medida"))}: ${esc(tire.size || "—")}</div>
-      <div class="sub">${esc(t("Posição"))}: ${esc(tire.status === "removed" ? t("Retirado") : positionLabel(tire.position_code, positions))} · ${esc(t("KM de instalação"))}: ${tire.install_km ? formatInt(tire.install_km) + " km" : "—"} · ${esc(t("KM percorridos"))}: ${run != null ? formatInt(run) + " km" : esc(t("Indisponível"))}</div>
-      <h3>${esc(t("Histórico de medições"))}</h3>
-      <table><thead><tr><th>${esc(t("Data"))}</th><th>${esc(t("Sulco"))}</th><th>${esc(t("Observações"))}</th></tr></thead><tbody>${measRows}</tbody></table>
-      <h3>${esc(t("Mudanças de posição"))}</h3>
-      <table><thead><tr><th>${esc(t("Data"))}</th><th>${esc(t("Movimentação"))}</th><th>KM</th></tr></thead><tbody>${movRows}</tbody></table>
-    </body></html>`;
+    const html = buildTireReportHtml({
+      t,
+      header,
+      tire,
+      vehicleName: vehicle ? vehicleName(vehicle) || vehicleTitle(vehicle) : "",
+      truckPlate: vehicle?.truck_plate || "",
+      compositionPlates: vehicle ? compositionPlates(vehicle) : "",
+      positionLabel: tire.status === "removed" ? t("Retirado") : positionLabel(tire.position_code, positions),
+      kmRun: run,
+      state: treadState(tire.current_tread_mm, g, y),
+      stateLabel: stLabel(tire),
+    });
     await share(html);
     setBusy(null);
   };
