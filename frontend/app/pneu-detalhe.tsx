@@ -330,6 +330,9 @@ const useStyles = makeStyles((colors) => ({
   disabled: { opacity: 0.6 },
   backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
   sheet: {
+    width: "100%",
+    maxWidth: 720,
+    alignSelf: "center",
     backgroundColor: colors.surfaceSecondary,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,

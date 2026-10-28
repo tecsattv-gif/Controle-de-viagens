@@ -13,6 +13,7 @@ import { AppSplash } from "@/src/components/AppSplash";
 import { MigrationGate } from "@/src/components/MigrationGate";
 import { SecurityGate } from "@/src/components/SecurityGate";
 import { StartOnResumo } from "@/src/components/StartOnResumo";
+import { TabletFrame } from "@/src/components/TabletFrame";
 import { ErrorBoundary } from "@/src/components/error-boundary";
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
 import { UndoDeleteProvider } from "@/src/context/UndoDelete";
@@ -83,7 +84,9 @@ export default function RootLayout() {
                 <StatusBar style="light" />
                 <AuthGate>
                   <UndoDeleteProvider>
-                    <Stack screenOptions={{ headerShown: false }} />
+                    <TabletFrame>
+                      <Stack screenOptions={{ headerShown: false }} />
+                    </TabletFrame>
                     <StartOnResumo />
                   </UndoDeleteProvider>
                 </AuthGate>
