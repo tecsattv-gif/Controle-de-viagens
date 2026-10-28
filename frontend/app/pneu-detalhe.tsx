@@ -249,7 +249,7 @@ export default function PneuDetalheScreen() {
                 <X size={22} color={colors.onSurface} weight="bold" />
               </Pressable>
             </View>
-            <DateInputField label={t("Data da medição")} value={mDate} onChange={setMDate} testID="field-measure-date" />
+            <DateInputField label={t("Data da medição")} value={mDate} onChange={setMDate} style={{ flex: 0 }} testID="field-measure-date" />
             <TextField label={t("Profundidade do sulco (mm)")} value={mTread} onChangeText={setMTread} keyboardType="decimal-pad" placeholder="0" testID="field-measure-tread" />
             <TextField label={t("Observações (opcional)")} value={mNotes} onChangeText={setMNotes} placeholder={t("Observações")} testID="field-measure-notes" />
             <Pressable style={[styles.pdfBtn, addMeasure.isPending && styles.disabled]} onPress={saveMeasure} disabled={addMeasure.isPending} testID="save-measure">

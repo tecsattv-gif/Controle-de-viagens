@@ -3,7 +3,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { CalendarBlank } from "phosphor-react-native";
 import { useEffect, useState } from "react";
-import { Platform, Pressable, Text, TextInput, View } from "react-native";
+import { Platform, Pressable, StyleProp, Text, TextInput, View, ViewStyle } from "react-native";
 
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import {
@@ -23,6 +23,7 @@ type Props = {
   error?: string;
   testID?: string;
   fourDigitYear?: boolean;
+  style?: StyleProp<ViewStyle>;
 };
 
 // A date field the user can TYPE manually (DD/MM/AAAA) or pick from the
@@ -34,6 +35,7 @@ export function DateInputField({
   error,
   testID,
   fourDigitYear,
+  style,
 }: Props) {
   const styles = useStyles();
   const { colors } = useTheme();
@@ -72,7 +74,7 @@ export function DateInputField({
   };
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, style]}>
       <Text style={styles.label}>{label}</Text>
       <View style={[styles.field, error ? styles.fieldError : null]}>
         <TextInput
