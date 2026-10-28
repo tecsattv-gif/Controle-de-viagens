@@ -3,8 +3,8 @@ import * as Print from "expo-print";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import { ArrowsLeftRight, FilePdf, PencilSimple, Ruler, Trash, X } from "phosphor-react-native";
-import { useMemo, useState } from "react";
-import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Keyboard, Modal, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
@@ -50,6 +50,17 @@ export default function PneuDetalheScreen() {
   const delMeasure = useDeleteMeasurement();
 
   const [measureOpen, setMeasureOpen] = useState(false);
+
+  // A janela "Medir Sulco" fica num Modal, que no Android não encolhe quando o
+  // teclado abre. Medimos o teclado e empurramos a janela para cima.
+  const [kbHeight, setKbHeight] = useState(0);
+  useEffect(() => {
+    const showEvt = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvt = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const s1 = Keyboard.addListener(showEvt, (e) => setKbHeight(e.endCoordinates.height));
+    const s2 = Keyboard.addListener(hideEvt, () => setKbHeight(0));
+    return () => { s1.remove(); s2.remove(); };
+  }, []);
   const [mDate, setMDate] = useState(new Date());
   const [mTread, setMTread] = useState("");
   const [mNotes, setMNotes] = useState("");
@@ -242,7 +253,7 @@ export default function PneuDetalheScreen() {
 
       <Modal visible={measureOpen} transparent animationType="fade" onRequestClose={() => setMeasureOpen(false)}>
         <Pressable style={styles.backdrop} onPress={() => setMeasureOpen(false)}>
-          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+          <Pressable style={[styles.sheet, kbHeight > 0 && { paddingBottom: kbHeight + 16 }]} onPress={(e) => e.stopPropagation()}>
             <View style={styles.sheetHead}>
               <Text style={styles.sheetTitle}>{t("Medir Sulco")}</Text>
               <Pressable onPress={() => setMeasureOpen(false)} hitSlop={10}>
