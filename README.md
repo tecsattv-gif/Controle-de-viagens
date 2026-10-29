@@ -13,6 +13,19 @@ App de diário de bordo para motoristas: viagens, fretes, despesas, abasteciment
   - quem nunca teve conta toca em "Não, começar do zero";
   - a importação pode ser repetida em Cadastros → Backup ("Trazer dados da conta online") e nunca duplica registros.
 
+## Coordenadas GPS
+Ao tocar num campo de local, o app grava as coordenadas do GPS e mostra a linha 📍 logo abaixo:
+- **Viagem:** Local de carregamento e Local de descarga (nova viagem e editar/fechar viagem)
+- **Abastecimento:** Local do abastecimento
+- **Controle diário:** Local de início, Local de fim e cada parada (a parada pode ter só as coordenadas, sem nome)
+
+Em cada linha: tocar nas coordenadas abre o Google Maps, ↻ busca de novo e 🗑 apaga (com confirmação; depois de apagar, só o ↻ volta a buscar). O componente é `frontend/src/components/PlaceCoords.tsx`. Nos relatórios do controle diário (tela, PDF e CSV), início, fim e paradas mostram as coordenadas ao lado do local; campos vazios não aparecem.
+
+Nos relatórios PDF por período, o separador **•** entre itens sai maior e em negrito.
+
+## APK de teste
+O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` um APK de teste ("Viagens TESTE", pacote `.teste`), que instala ao lado do app oficial. Baixe em **Actions → artefato `controle-viagens-teste-apk`**.
+
 ## ⚠️ Antes de publicar
 1. **Mantenha o servidor antigo (pasta `backend/`) ligado** durante a transição (sugestão: 2 a 3 meses), até todos atualizarem. Depois pode desligá-lo: o app não usa mais o servidor.
 2. **Endereço do servidor:** o app usa `EXPO_PUBLIC_BACKEND_URL` (o mesmo de antes). Se o build não definir essa variável, usa `LEGACY_BACKEND_URL` em `frontend/src/local/migrate.ts`. Confira se é o endereço que os utilizadores usam hoje: `<endereço>/api/` deve responder `{"message":"Controle de Viagens API"}`.
