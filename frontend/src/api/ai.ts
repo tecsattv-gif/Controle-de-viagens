@@ -22,7 +22,7 @@ export const AI_PROVIDERS: Record<
   gemini: {
     label: "Google Gemini",
     url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-    defaultModel: "gemini-2.5-flash",
+    defaultModel: "gemini-flash-latest",
     keyUrl: "https://aistudio.google.com/apikey",
     free: true,
   },
@@ -38,6 +38,7 @@ export const AI_PROVIDERS: Record<
 export type AIConfig = { provider: AIProvider; model: string; apiKey: string };
 
 const CFG_KEY = "ai_config";
+const AI_TIMEOUT_MS = 60000;
 const SECRET_KEY = "ai_api_key";
 const MSG_KEY = "ai_messages";
 
@@ -173,6 +174,19 @@ export async function streamAIChat(text: string, onDelta: (chunk: string) => voi
   await appendMessage("user", question);
 
   const doFetch = Platform.OS === "web" ? fetch : (expoFetch as unknown as typeof fetch);
+  // Se a IA ficar 60 s sem mandar nada, desiste e avisa (antes ficava a carregar para sempre).
+  const controller = new AbortController();
+  let timedOut = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const armTimer = () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, AI_TIMEOUT_MS);
+  };
+  const timeoutError = () => new Error("A IA demorou demais para responder. Tente de novo com uma pergunta mais curta.");
+  armTimer();
   let res: Response;
   try {
     res = await doFetch(prov.url, {
@@ -182,12 +196,17 @@ export async function streamAIChat(text: string, onDelta: (chunk: string) => voi
         Accept: "text/event-stream",
         Authorization: `Bearer ${cfg.apiKey}`,
       },
-      body: JSON.stringify({ model: cfg.model || prov.defaultModel, messages, stream: true }),
-    });
+      // reasoning_effort "low": os modelos novos "pensam" menos e respondem mais rápido.
+      body: JSON.stringify({ model: cfg.model || prov.defaultModel, messages, stream: true, reasoning_effort: "low" }),
+      signal: controller.signal,
+    } as RequestInit);
   } catch {
+    if (timer) clearTimeout(timer);
+    if (timedOut) throw timeoutError();
     throw new Error("Sem ligação à internet. O assistente IA precisa de internet.");
   }
   if (!res.ok) {
+    if (timer) clearTimeout(timer);
     let detail = "";
     try {
       const b = await res.json();
@@ -207,9 +226,18 @@ export async function streamAIChat(text: string, onDelta: (chunk: string) => voi
   const decoder = new TextDecoder();
   let buf = "";
   let finished = false;
+  try {
   while (!finished) {
-    const { value, done } = await reader.read();
+    let chunk: ReadableStreamReadResult<Uint8Array>;
+    try {
+      chunk = await reader.read();
+    } catch (e) {
+      if (timedOut) throw timeoutError();
+      throw e;
+    }
+    const { value, done } = chunk;
     if (done) break;
+    armTimer();
     buf += decoder.decode(value, { stream: true });
     let idx: number;
     while ((idx = buf.indexOf("\n")) >= 0) {
@@ -234,6 +262,10 @@ export async function streamAIChat(text: string, onDelta: (chunk: string) => voi
       }
     }
   }
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
   const answer = parts.join("").trim();
-  if (answer) await appendMessage("assistant", answer);
+  if (!answer) throw new Error("A IA não devolveu resposta. Tente de novo.");
+  await appendMessage("assistant", answer);
 }
