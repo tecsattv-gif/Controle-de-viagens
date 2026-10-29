@@ -74,7 +74,7 @@ const TRIP = {
 } satisfies Record<string, FieldSpec>;
 
 const REFUELING = {
-  date: "", station_name: "", station_place: "", diesel_liters: FLOAT, diesel_price: FLOAT,
+  date: "", station_name: "", station_place: "", station_lat: "", station_lng: "", diesel_liters: FLOAT, diesel_price: FLOAT,
   arla_liters: FLOAT, arla_price: FLOAT, currency: "EUR", payment_method: "Cartão", card_type: "",
   card_name: "", km: INT, arla_km: INT, notes: "",
 } satisfies Record<string, FieldSpec>;

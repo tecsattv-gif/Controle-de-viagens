@@ -21,6 +21,7 @@ import {
   useUpdateRefueling,
 } from "@/src/api/refuelings";
 import { DateInputField } from "@/src/components/DateInputField";
+import { CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
 import { TextField } from "@/src/components/TextField";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
@@ -44,6 +45,7 @@ export default function AbastecimentoFormScreen() {
 
   const [date, setDate] = useState(new Date());
   const [place, setPlace] = useState("");
+  const placeGps = useCoordsField();
   const [km, setKm] = useState("");
   const [diesel, setDiesel] = useState("");
   const [dieselPrice, setDieselPrice] = useState("");
@@ -68,6 +70,7 @@ export default function AbastecimentoFormScreen() {
     if (editing && existing && !prefilled) {
       setDate(parseISODate(existing.date));
       setPlace(existing.station_place || existing.station_name || "");
+      placeGps.setCoords({ lat: existing.station_lat || "", lng: existing.station_lng || "" });
       setKm(existing.km ? String(existing.km) : "");
       setDiesel(existing.diesel_liters ? String(existing.diesel_liters).replace(".", ",") : "");
       setDieselPrice(existing.diesel_price ? String(existing.diesel_price).replace(".", ",") : "");
@@ -126,6 +129,8 @@ export default function AbastecimentoFormScreen() {
     const input = {
       date: toISODate(date),
       station_place: place.trim(),
+      station_lat: placeGps.coords.lat,
+      station_lng: placeGps.coords.lng,
       diesel_liters: dieselN,
       diesel_price: isNaN(dieselPriceN) ? 0 : dieselPriceN,
       arla_liters: hasArla ? arlaN : 0,
@@ -207,7 +212,15 @@ export default function AbastecimentoFormScreen() {
               onChangeText={setPlace}
               placeholder={t("Ex.: Posto / cidade / autoestrada")}
               error={errors.place}
+              onFocus={() => placeGps.capture()}
               testID="field-station-place"
+            />
+            <CoordsRow
+              coords={placeGps.coords}
+              locating={placeGps.locating}
+              error={placeGps.error}
+              onRefresh={() => placeGps.capture(true)}
+              testID="coords-station-place"
             />
 
             <Text style={styles.groupLabel}>{t("Diesel")}</Text>

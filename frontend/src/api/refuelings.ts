@@ -14,6 +14,8 @@ export type Refueling = {
   date: string; // yyyy-mm-dd
   station_name: string;
   station_place: string;
+  station_lat?: string; // coordenadas GPS do local ("" = sem localização)
+  station_lng?: string;
   diesel_liters: number;
   diesel_price: number;
   arla_liters: number;
@@ -31,6 +33,8 @@ export type Refueling = {
 export type RefuelingInput = {
   date: string;
   station_place: string; // Local do abastecimento
+  station_lat?: string;
+  station_lng?: string;
   diesel_liters: number;
   diesel_price: number;
   arla_liters: number;
