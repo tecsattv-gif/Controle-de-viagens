@@ -3,6 +3,7 @@ import { CaretRight, CalendarCheck, Gauge, Package, Truck } from "phosphor-react
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { findOpenTrip, useTrips } from "@/src/api/trips";
 import { ScreenHeader } from "@/src/components/ScreenHeader";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
@@ -14,6 +15,17 @@ export default function NovoScreen() {
   const router = useRouter();
   const t = useT();
   const go = (path: string) => router.push(path as never);
+  const { data: trips } = useTrips();
+
+  // Se houver viagem em aberto, vai direto para fechá-la em vez de abrir uma nova.
+  const goNovaViagem = () => {
+    const open = findOpenTrip(trips);
+    if (open) {
+      router.push({ pathname: "/editar-viagem", params: { id: open.id, fechar: "1" } });
+    } else {
+      go("/viagem-form");
+    }
+  };
 
   return (
     <View style={styles.screen} testID="novo-screen">
@@ -25,7 +37,7 @@ export default function NovoScreen() {
       >
         <Pressable
           style={styles.item}
-          onPress={() => go("/viagem-form")}
+          onPress={goNovaViagem}
           testID="menu-cadastrar-viagem"
           accessibilityRole="button"
         >

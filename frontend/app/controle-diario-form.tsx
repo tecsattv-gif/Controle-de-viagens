@@ -1,9 +1,11 @@
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Clock, FloppyDisk, PathIcon as Path, Plus, Warning, X } from "phosphor-react-native";
+import * as Location from "expo-location";
+import { ArrowClockwise, Clock, FloppyDisk, MapPin, PathIcon as Path, Plus, Warning, X } from "phosphor-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Platform,
   Pressable,
   Text,
@@ -106,9 +108,48 @@ export default function ControleDiarioFormScreen() {
     setStops((prev) => prev.map((s, idx) => (idx === i ? { ...s, place: v } : s)));
   const updateStopTime = (i: number, v: string) =>
     setStops((prev) => prev.map((s, idx) => (idx === i ? { ...s, time: maskTimeInput(v) } : s)));
-  const addStop = () =>
-    setStops((prev) => [...prev, { place: "", time: formatTimeHM(new Date()) }]);
-  const removeStop = (i: number) => setStops((prev) => prev.filter((_, idx) => idx !== i));
+  // Paradas cujo GPS está sendo buscado (índice -> true).
+  const [locating, setLocating] = useState<Record<number, boolean>>({});
+
+  // Busca a posição atual e grava as coordenadas na parada i.
+  // O nome do local continua livre para o usuário digitar.
+  const fillStopLocation = async (i: number) => {
+    setLocating((p) => ({ ...p, [i]: true }));
+    try {
+      const perm = await Location.requestForegroundPermissionsAsync();
+      if (perm.status !== "granted") {
+        setBanner(t("Permita o acesso à localização para gravar as coordenadas da parada."));
+        return;
+      }
+      let pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }).catch(
+        () => null,
+      );
+      if (!pos) pos = await Location.getLastKnownPositionAsync();
+      if (!pos) {
+        setBanner(t("Não foi possível obter a localização. Verifique se o GPS está ligado."));
+        return;
+      }
+      const lat = pos.coords.latitude.toFixed(6);
+      const lng = pos.coords.longitude.toFixed(6);
+      setStops((prev) => prev.map((s, idx) => (idx === i ? { ...s, lat, lng } : s)));
+    } catch {
+      setBanner(t("Não foi possível obter a localização. Verifique se o GPS está ligado."));
+    } finally {
+      setLocating((p) => ({ ...p, [i]: false }));
+    }
+  };
+
+  const addStop = () => {
+    const i = stops.length;
+    setStops((prev) => [...prev, { place: "", time: formatTimeHM(new Date()), lat: "", lng: "" }]);
+    if (Platform.OS !== "web") fillStopLocation(i);
+  };
+  const removeStop = (i: number) => {
+    setStops((prev) => prev.filter((_, idx) => idx !== i));
+    setLocating({});
+  };
+  const openStopMap = (s: DailyStop) =>
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`);
 
   const handleSave = () => {
     const next: Record<string, string> = {};
@@ -135,8 +176,13 @@ export default function ControleDiarioFormScreen() {
       end_km: hasEndKm ? b : 0,
       end_time: endTime.trim(),
       stops: stops
-        .map((s) => ({ place: s.place.trim(), time: (s.time || "").trim() }))
-        .filter((s) => s.place || s.time),
+        .map((s) => ({
+          place: s.place.trim(),
+          time: (s.time || "").trim(),
+          lat: s.lat || "",
+          lng: s.lng || "",
+        }))
+        .filter((s) => s.place || s.time || s.lat),
       notes: "",
     };
 
@@ -299,6 +345,26 @@ export default function ControleDiarioFormScreen() {
                   style={styles.stopInput}
                   testID={`field-cd-stop-place-${i}`}
                 />
+                <View style={styles.coordRow}>
+                  <MapPin size={16} color={colors.brandPrimary} weight="fill" />
+                  {locating[i] ? (
+                    <>
+                      <ActivityIndicator size="small" color={colors.brandPrimary} />
+                      <Text style={styles.coordText}>{t("Obtendo localização...")}</Text>
+                    </>
+                  ) : stop.lat && stop.lng ? (
+                    <Pressable onPress={() => openStopMap(stop)} style={{ flex: 1 }} testID={`cd-stop-map-${i}`}>
+                      <Text style={styles.coordLink}>{`${stop.lat}, ${stop.lng}`}</Text>
+                    </Pressable>
+                  ) : (
+                    <Text style={[styles.coordText, { flex: 1 }]}>{t("Sem coordenadas")}</Text>
+                  )}
+                  {Platform.OS !== "web" && !locating[i] ? (
+                    <Pressable onPress={() => fillStopLocation(i)} hitSlop={10} testID={`cd-stop-gps-${i}`}>
+                      <ArrowClockwise size={18} color={colors.brandPrimary} weight="bold" />
+                    </Pressable>
+                  ) : null}
+                </View>
               </View>
             ))}
             <Pressable onPress={addStop} style={styles.addBtn} testID="cd-add-stop">
@@ -397,6 +463,9 @@ const useStyles = makeStyles((colors) => ({
     gap: 8,
   },
   stopTimeRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  coordRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 2 },
+  coordText: { fontFamily: fonts.body, fontSize: 13, color: colors.muted },
+  coordLink: { fontFamily: fonts.body, fontSize: 13, color: colors.brandPrimary, textDecorationLine: "underline" },
   stopTimeInput: {
     width: 90,
     backgroundColor: colors.surfaceTertiary,

@@ -12,7 +12,8 @@
       "bundleIdentifier": "com.emergent.appbuilderdemo.chwn0a",
       "infoPlist": {
         "NSCameraUsageDescription": "Tirar foto do motorista ou do veículo",
-        "NSPhotoLibraryUsageDescription": "Escolher foto do motorista ou do veículo"
+        "NSPhotoLibraryUsageDescription": "Escolher foto do motorista ou do veículo",
+        "NSLocationWhenInUseUsageDescription": "Gravar as coordenadas das paradas do controle diário"
       }
     },
     "android": {
@@ -24,7 +25,9 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -61,6 +64,12 @@
         "expo-local-authentication",
         {
           "faceIDPermission": "Desbloquear o aplicativo com biometria"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Gravar as coordenadas das paradas do controle diário"
         }
       ]
     ],

@@ -8,7 +8,9 @@ import { formatDateBR, formatInt } from "@/src/utils/format";
 
 function stopsText(x: DailyLog): string {
   return (x.stops || [])
-    .map((s) => [s.time, s.place].filter(Boolean).join(" "))
+    .map((s) =>
+      [s.time, s.place, s.lat && s.lng ? `(${s.lat}, ${s.lng})` : ""].filter(Boolean).join(" "),
+    )
     .filter(Boolean)
     .join(" • ");
 }

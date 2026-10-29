@@ -15,7 +15,7 @@ import {
 } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useCreateTrip, useTrips } from "@/src/api/trips";
+import { findOpenTrip, useCreateTrip, useTrips } from "@/src/api/trips";
 import { useVehicles, vehicleLabel, vehicleTitle } from "@/src/api/vehicles";
 import { useDrivers } from "@/src/api/drivers";
 import { DateInputField } from "@/src/components/DateInputField";
@@ -39,23 +39,18 @@ export default function ViagemFormScreen() {
 
   const [redirected, setRedirected] = useState(false);
 
-  // Igual ao Controle Diário: se a ÚLTIMA viagem estiver incompleta
-  // (falta o local de descarga E o KM final), abre-a para concluir.
+  // Segurança extra: se chegou aqui com uma viagem em aberto, abre-a para fechar.
   useEffect(() => {
     if (redirected || !trips) return;
-    const last = [...trips].sort((x, y) =>
-      (y.created_at || "").localeCompare(x.created_at || ""),
-    )[0];
-    const noKm = !last?.km_end || last.km_end === 0;
-    const noPlace = !last?.unloading_place || last.unloading_place.trim() === "";
-    const open = last && noKm && noPlace ? last : undefined;
+    const open = findOpenTrip(trips);
     if (open) {
       setRedirected(true);
-      router.replace({ pathname: "/editar-viagem", params: { id: open.id } });
+      router.replace({ pathname: "/editar-viagem", params: { id: open.id, fechar: "1" } });
     }
   }, [trips, redirected, router]);
 
   const [date, setDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const [kmStart, setKmStart] = useState("");
   const [kmEnd, setKmEnd] = useState("");
   const [loading, setLoading] = useState("");
@@ -86,6 +81,7 @@ export default function ViagemFormScreen() {
     setVehicleId("");
     setDriverId("");
     setDate(new Date());
+    setEndDate(new Date());
     setErrors({});
   };
 
@@ -95,6 +91,9 @@ export default function ViagemFormScreen() {
     if (!loading.trim()) next.loading = t("Informe o local de carregamento");
     if (!isNaN(a) && !isNaN(b) && b < a) {
       next.kmEnd = t("O KM final deve ser igual ou superior ao KM inicial");
+    }
+    if (toISODate(endDate) < toISODate(date)) {
+      next.endDate = t("A data final não pode ser anterior à data de carregamento");
     }
 
     if (Object.keys(next).length > 0) {
@@ -112,7 +111,7 @@ export default function ViagemFormScreen() {
     createTrip.mutate(
       {
         date: toISODate(date),
-        end_date: toISODate(date),
+        end_date: toISODate(endDate),
         km_start: a,
         km_end: isNaN(b) ? 0 : b,
         start_time: "",
@@ -176,6 +175,15 @@ export default function ViagemFormScreen() {
             value={date}
             onChange={setDate}
             testID="field-start-date"
+          />
+        </View>
+        <View style={styles.row}>
+          <DateInputField
+            label={t("Data final da viagem")}
+            value={endDate}
+            onChange={setEndDate}
+            error={errors.endDate}
+            testID="field-end-date"
           />
         </View>
 

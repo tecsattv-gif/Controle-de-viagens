@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { FloppyDisk, PathIcon as Path, Warning, X } from "phosphor-react-native";
+import { FlagCheckered, FloppyDisk, PathIcon as Path, Warning, X } from "phosphor-react-native";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -34,7 +34,9 @@ export default function EditarViagemScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const t = useT();
-  const params = useLocalSearchParams<{ id?: string }>();
+  const params = useLocalSearchParams<{ id?: string; fechar?: string }>();
+  // Modo "fechar viagem": aberto automaticamente quando há viagem em aberto.
+  const closing = params.fechar === "1";
 
   const { data: trips, isLoading } = useTrips();
   const existing = trips?.find((t) => t.id === params.id);
@@ -59,7 +61,15 @@ export default function EditarViagemScreen() {
   useEffect(() => {
     if (existing && !prefilled) {
       setDate(parseISODate(existing.date));
-      setEndDate(parseISODate(existing.end_date || existing.date));
+      // Ao fechar, sugere hoje como data final (se não for antes do carregamento).
+      const today = new Date();
+      const startISO = existing.date;
+      const savedEnd = existing.end_date || existing.date;
+      setEndDate(
+        closing && savedEnd === startISO && toISODate(today) >= startISO
+          ? today
+          : parseISODate(savedEnd),
+      );
       setKmStart(String(existing.km_start));
       setKmEnd(existing.km_end ? String(existing.km_end) : "");
       setLoading(existing.loading_place);
@@ -70,7 +80,7 @@ export default function EditarViagemScreen() {
       setFreight(freightFromTrip(existing));
       setPrefilled(true);
     }
-  }, [existing, prefilled]);
+  }, [existing, prefilled, closing]);
 
   const a = parseInt(kmStart, 10);
   const b = parseInt(kmEnd, 10);
@@ -82,9 +92,8 @@ export default function EditarViagemScreen() {
   const doSave = () => {
     const vehicle = (vehicles ?? []).find((v) => v.id === vehicleId);
     const driver = (drivers ?? []).find((d) => d.id === driverId);
-    // Preserve legacy end_date/time of old trips; never earlier than the load date.
     const dateISO = toISODate(date);
-    const endISO = toISODate(endDate) >= dateISO ? toISODate(endDate) : dateISO;
+    const endISO = toISODate(endDate);
     updateTrip.mutate(
       {
         id: params.id as string,
@@ -131,6 +140,13 @@ export default function EditarViagemScreen() {
     if (!isNaN(a) && !isNaN(b) && b < a) {
       next.kmEnd = t("O KM final deve ser igual ou superior ao KM inicial");
     }
+    if (toISODate(endDate) < toISODate(date)) {
+      next.endDate = t("A data final não pode ser anterior à data de carregamento");
+    }
+    if (closing) {
+      if (!kmEnd.trim()) next.kmEnd = t("Informe o KM final para fechar a viagem");
+      if (!unload.trim()) next.unloading = t("Informe o local de descarga");
+    }
     if (Object.keys(next).length > 0) {
       setErrors(next);
       setBanner(t("Verifique os campos destacados."));
@@ -143,9 +159,12 @@ export default function EditarViagemScreen() {
       doSave();
       return;
     }
-    Alert.alert("Salvar alterações", "Deseja salvar as alterações desta viagem?", [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Salvar", onPress: doSave },
+    Alert.alert(
+      closing ? t("Fechar viagem") : t("Salvar alterações"),
+      closing ? t("Deseja fechar esta viagem?") : t("Deseja salvar as alterações desta viagem?"),
+      [
+      { text: t("Cancelar"), style: "cancel" },
+      { text: closing ? t("Fechar") : t("Salvar"), onPress: doSave },
     ]);
   };
 
@@ -157,7 +176,7 @@ export default function EditarViagemScreen() {
         <Pressable onPress={() => router.back()} style={styles.closeBtn} hitSlop={10} testID="edit-close">
           <X size={22} color={colors.onSurface} weight="bold" />
         </Pressable>
-        <Text style={styles.title}>{t("Editar viagem")}</Text>
+        <Text style={styles.title}>{closing ? t("Fechar viagem em aberto") : t("Editar viagem")}</Text>
       </View>
 
       {notFound ? (
@@ -178,8 +197,20 @@ export default function EditarViagemScreen() {
               </View>
             ) : null}
 
+            {closing ? (
+              <View style={styles.infoBanner} testID="closing-banner">
+                <FlagCheckered size={18} color={colors.brandPrimary} weight="bold" />
+                <Text style={styles.bannerText}>
+                  {t("Você tem uma viagem em aberto. Informe a data final, o KM final e o local de descarga para fechá-la antes de cadastrar uma nova.")}
+                </Text>
+              </View>
+            ) : null}
+
             <View style={styles.row}>
               <DateInputField label={t("Data de Carregamento")} value={date} onChange={setDate} testID="edit-start-date" />
+            </View>
+            <View style={styles.row}>
+              <DateInputField label={t("Data final da viagem")} value={endDate} onChange={setEndDate} error={errors.endDate} testID="edit-end-date" />
             </View>
 
             <View style={styles.row}>
@@ -204,7 +235,7 @@ export default function EditarViagemScreen() {
             </View>
 
             <TextField label={t("Local de carregamento")} value={loading} onChangeText={setLoading} placeholder={t("Ex.: Centro de distribuição")} error={errors.loading} testID="edit-loading" />
-            <TextField label={t("Local de descarga")} value={unload} onChangeText={setUnload} placeholder={t("Ex.: Cliente / destino")} testID="edit-unloading" />
+            <TextField label={t("Local de descarga")} value={unload} onChangeText={setUnload} placeholder={t("Ex.: Cliente / destino")} error={errors.unloading} testID="edit-unloading" />
 
             <TextField label={t("Observações")} value={notes} onChangeText={setNotes} placeholder={t("Opcional")} multiline numberOfLines={3} style={styles.notesInput} testID="edit-notes" />
 
@@ -237,7 +268,7 @@ export default function EditarViagemScreen() {
                 ) : (
                   <>
                     <FloppyDisk size={22} color={colors.onBrandPrimary} weight="bold" />
-                    <Text style={styles.saveText}>{t("Salvar alterações")}</Text>
+                    <Text style={styles.saveText}>{closing ? t("Fechar viagem") : t("Salvar alterações")}</Text>
                   </>
                 )}
               </Pressable>
@@ -273,6 +304,17 @@ const useStyles = makeStyles((colors) => ({
     gap: 10,
     backgroundColor: colors.surfaceSecondary,
     borderColor: colors.error,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 14,
+  },
+  infoBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: colors.brandTertiary,
+    borderColor: colors.brandPrimary,
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,

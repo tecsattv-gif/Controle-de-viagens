@@ -10,6 +10,9 @@ import { localRequest } from "@/src/local/server";
 export type DailyStop = {
   place: string;
   time: string; // HH:mm
+  // Coordenadas capturadas pelo GPS ao adicionar a parada ("" = sem localização).
+  lat?: string;
+  lng?: string;
 };
 
 export type DailyLog = {

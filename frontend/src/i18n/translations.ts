@@ -6,6 +6,20 @@ import type { LangCode } from "./index";
 type Table = Record<string, string>;
 
 const es: Table = {
+  "Permita o acesso à localização para gravar as coordenadas da parada.": "Permita el acceso a la ubicación para guardar las coordenadas de la parada.",
+  "Não foi possível obter a localização. Verifique se o GPS está ligado.": "No fue posible obtener la ubicación. Verifique que el GPS esté activado.",
+  "Obtendo localização...": "Obteniendo ubicación...",
+  "Sem coordenadas": "Sin coordenadas",
+  "Data final da viagem": "Fecha final del viaje",
+  "A data final não pode ser anterior à data de carregamento": "La fecha final no puede ser anterior a la fecha de carga",
+  "Informe o KM final para fechar a viagem": "Informe el KM final para cerrar el viaje",
+  "Informe o local de descarga": "Informe el lugar de descarga",
+  "Fechar viagem em aberto": "Cerrar viaje abierto",
+  "Fechar viagem": "Cerrar viaje",
+  "Deseja fechar esta viagem?": "¿Desea cerrar este viaje?",
+  "Fechar": "Cerrar",
+  "Deseja salvar as alterações desta viagem?": "¿Desea guardar los cambios de este viaje?",
+  "Você tem uma viagem em aberto. Informe a data final, o KM final e o local de descarga para fechá-la antes de cadastrar uma nova.": "Tiene un viaje abierto. Informe la fecha final, el KM final y el lugar de descarga para cerrarlo antes de registrar uno nuevo.",
   "Total de pneus: {n}": "Total de neumáticos: {n}",
   "Total de pneus da composição: {n}": "Total de neumáticos de la composición: {n}",
   "Eixo": "Eje",
@@ -1160,6 +1174,20 @@ const es: Table = {
 };
 
 const en: Table = {
+  "Permita o acesso à localização para gravar as coordenadas da parada.": "Allow location access to save the stop coordinates.",
+  "Não foi possível obter a localização. Verifique se o GPS está ligado.": "Could not get the location. Check that GPS is on.",
+  "Obtendo localização...": "Getting location...",
+  "Sem coordenadas": "No coordinates",
+  "Data final da viagem": "Trip end date",
+  "A data final não pode ser anterior à data de carregamento": "End date cannot be before the loading date",
+  "Informe o KM final para fechar a viagem": "Enter the final KM to close the trip",
+  "Informe o local de descarga": "Enter the unloading place",
+  "Fechar viagem em aberto": "Close open trip",
+  "Fechar viagem": "Close trip",
+  "Deseja fechar esta viagem?": "Do you want to close this trip?",
+  "Fechar": "Close",
+  "Deseja salvar as alterações desta viagem?": "Save the changes to this trip?",
+  "Você tem uma viagem em aberto. Informe a data final, o KM final e o local de descarga para fechá-la antes de cadastrar uma nova.": "You have an open trip. Enter the end date, final KM and unloading place to close it before registering a new one.",
   "Total de pneus: {n}": "Total tires: {n}",
   "Total de pneus da composição: {n}": "Total tires in the combination: {n}",
   "Eixo": "Axle",
@@ -2304,6 +2332,20 @@ const en: Table = {
 };
 
 const fr: Table = {
+  "Permita o acesso à localização para gravar as coordenadas da parada.": "Autorisez l'accès à la localisation pour enregistrer les coordonnées de l'arrêt.",
+  "Não foi possível obter a localização. Verifique se o GPS está ligado.": "Impossible d'obtenir la localisation. Vérifiez que le GPS est activé.",
+  "Obtendo localização...": "Obtention de la localisation...",
+  "Sem coordenadas": "Sans coordonnées",
+  "Data final da viagem": "Date de fin du voyage",
+  "A data final não pode ser anterior à data de carregamento": "La date de fin ne peut pas être antérieure à la date de chargement",
+  "Informe o KM final para fechar a viagem": "Indiquez le KM final pour clôturer le voyage",
+  "Informe o local de descarga": "Indiquez le lieu de déchargement",
+  "Fechar viagem em aberto": "Clôturer le voyage en cours",
+  "Fechar viagem": "Clôturer le voyage",
+  "Deseja fechar esta viagem?": "Voulez-vous clôturer ce voyage ?",
+  "Fechar": "Clôturer",
+  "Deseja salvar as alterações desta viagem?": "Enregistrer les modifications de ce voyage ?",
+  "Você tem uma viagem em aberto. Informe a data final, o KM final e o local de descarga para fechá-la antes de cadastrar uma nova.": "Vous avez un voyage en cours. Indiquez la date de fin, le KM final et le lieu de déchargement pour le clôturer avant d'en enregistrer un nouveau.",
   "Total de pneus: {n}": "Total de pneus : {n}",
   "Total de pneus da composição: {n}": "Total de pneus de l'ensemble : {n}",
   "Eixo": "Essieu",

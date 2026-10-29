@@ -122,3 +122,15 @@ export function useDeleteTrip() {
     },
   });
 }
+
+// Viagem em aberto = a ÚLTIMA viagem cadastrada ainda sem local de descarga
+// E sem KM final (mesma regra do Controle Diário).
+export function findOpenTrip(trips?: Trip[]): Trip | undefined {
+  if (!trips || trips.length === 0) return undefined;
+  const last = [...trips].sort((x, y) =>
+    (y.created_at || "").localeCompare(x.created_at || ""),
+  )[0];
+  const noKm = !last?.km_end || last.km_end === 0;
+  const noPlace = !last?.unloading_place || last.unloading_place.trim() === "";
+  return last && noKm && noPlace ? last : undefined;
+}
