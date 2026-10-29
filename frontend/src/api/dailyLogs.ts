@@ -19,6 +19,11 @@ export type DailyLog = {
   id: string;
   date: string; // yyyy-mm-dd
   start_place: string;
+  // Coordenadas GPS dos locais de início e fim ("" = sem localização).
+  start_lat?: string;
+  start_lng?: string;
+  end_lat?: string;
+  end_lng?: string;
   start_km: number;
   start_time: string; // HH:mm
   end_place: string;
@@ -32,6 +37,11 @@ export type DailyLog = {
 export type DailyLogInput = {
   date: string;
   start_place: string;
+  // Coordenadas GPS dos locais de início e fim ("" = sem localização).
+  start_lat?: string;
+  start_lng?: string;
+  end_lat?: string;
+  end_lng?: string;
   start_km: number;
   start_time: string;
   end_place: string;

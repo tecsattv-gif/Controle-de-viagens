@@ -27,6 +27,7 @@ import {
 } from "@/src/api/dailyLogs";
 import { DateInputField } from "@/src/components/DateInputField";
 import { TextField } from "@/src/components/TextField";
+import { CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import {
@@ -75,6 +76,8 @@ export default function ControleDiarioFormScreen() {
   const [startKm, setStartKm] = useState("");
   const [startTime, setStartTime] = useState(nowHM);
   const [endPlace, setEndPlace] = useState("");
+  const startGps = useCoordsField();
+  const endGps = useCoordsField();
   const [endKm, setEndKm] = useState("");
   const [endTime, setEndTime] = useState(nowHM);
   const [stops, setStops] = useState<DailyStop[]>([]);
@@ -89,6 +92,8 @@ export default function ControleDiarioFormScreen() {
       setStartKm(existing.start_km != null ? String(existing.start_km) : "");
       setStartTime(existing.start_time || "");
       setEndPlace(existing.end_place || "");
+      startGps.setCoords({ lat: existing.start_lat || "", lng: existing.start_lng || "" });
+      endGps.setCoords({ lat: existing.end_lat || "", lng: existing.end_lng || "" });
       setEndKm(existing.end_km ? String(existing.end_km) : "");
       setEndTime(existing.end_time || "");
       setStops(existing.stops || []);
@@ -170,9 +175,13 @@ export default function ControleDiarioFormScreen() {
     const input = {
       date: toISODate(date),
       start_place: startPlace.trim(),
+      start_lat: startGps.coords.lat,
+      start_lng: startGps.coords.lng,
       start_km: a,
       start_time: startTime.trim(),
       end_place: endPlace.trim(),
+      end_lat: endGps.coords.lat,
+      end_lng: endGps.coords.lng,
       end_km: hasEndKm ? b : 0,
       end_time: endTime.trim(),
       stops: stops
@@ -245,7 +254,15 @@ export default function ControleDiarioFormScreen() {
               value={startPlace}
               onChangeText={setStartPlace}
               placeholder={t("Ex.: Garagem / origem")}
+              onFocus={() => startGps.capture()}
               testID="field-cd-start-place"
+            />
+            <CoordsRow
+              coords={startGps.coords}
+              locating={startGps.locating}
+              error={startGps.error}
+              onRefresh={() => startGps.capture(true)}
+              testID="cd-coords-start"
             />
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
@@ -279,7 +296,15 @@ export default function ControleDiarioFormScreen() {
               onChangeText={setEndPlace}
               placeholder={t("Ex.: Garagem / destino")}
               error={errors.endPlace}
+              onFocus={() => endGps.capture()}
               testID="field-cd-end-place"
+            />
+            <CoordsRow
+              coords={endGps.coords}
+              locating={endGps.locating}
+              error={endGps.error}
+              onRefresh={() => endGps.capture(true)}
+              testID="cd-coords-end"
             />
             <View style={styles.row}>
               <View style={{ flex: 1 }}>

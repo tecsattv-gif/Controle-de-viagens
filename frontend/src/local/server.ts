@@ -102,7 +102,8 @@ const SERVICE_ORDER = {
 } satisfies Record<string, FieldSpec>;
 
 const DAILY_LOG = {
-  date: "", start_place: "", start_km: INT, start_time: "", end_place: "", end_km: INT, end_time: "",
+  date: "", start_place: "", start_lat: "", start_lng: "", start_km: INT, start_time: "",
+  end_place: "", end_lat: "", end_lng: "", end_km: INT, end_time: "",
   stops: [{ place: "", time: "", lat: "", lng: "" }], notes: "",
 } satisfies Record<string, FieldSpec>;
 

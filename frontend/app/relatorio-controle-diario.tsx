@@ -15,6 +15,18 @@ function stopsText(x: DailyLog): string {
     .join(" • ");
 }
 
+function coordText(lat?: string, lng?: string): string {
+  return lat && lng ? `(${lat}, ${lng})` : "";
+}
+
+function startText(x: DailyLog): string {
+  return [x.start_time, x.start_place, coordText(x.start_lat, x.start_lng)].filter(Boolean).join(" ");
+}
+
+function endText(x: DailyLog): string {
+  return [x.end_time, x.end_place, coordText(x.end_lat, x.end_lng)].filter(Boolean).join(" ");
+}
+
 function routeText(x: DailyLog): string {
   return [x.start_place, x.end_place].filter(Boolean).join(" → ");
 }
@@ -54,8 +66,8 @@ export default function RelatorioControleDiarioScreen() {
       alignRight={[false, false, false, true, true, true, false]}
       pdfCells={(x) => [
         formatDateBR(x.date),
-        [x.start_time, x.start_place].filter(Boolean).join(" ") || "—",
-        [x.end_time, x.end_place].filter(Boolean).join(" ") || "—",
+        startText(x) || "—",
+        endText(x) || "—",
         String(x.start_km),
         String(x.end_km),
         `${formatInt(dailyKm(x))} km`,
@@ -64,9 +76,9 @@ export default function RelatorioControleDiarioScreen() {
       csvHeaders={[t("Data"), t("Local início"), t("Hora início"), t("Local fim"), t("Hora fim"), t("KM inicial"), t("KM final"), t("KM do dia"), t("Paradas")]}
       csvCells={(x) => [
         formatDateBR(x.date),
-        x.start_place || "",
+        [x.start_place, coordText(x.start_lat, x.start_lng)].filter(Boolean).join(" "),
         x.start_time || "",
-        x.end_place || "",
+        [x.end_place, coordText(x.end_lat, x.end_lng)].filter(Boolean).join(" "),
         x.end_time || "",
         String(x.start_km),
         String(x.end_km),
