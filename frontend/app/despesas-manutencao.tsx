@@ -13,6 +13,7 @@ import {
 import { SwipeableRow } from "@/src/components/SwipeableRow";
 import { SortMode, SortToggle, sortItems } from "@/src/components/SortToggle";
 import { useUndoableDelete } from "@/src/context/UndoDelete";
+import { ReportButton } from "@/src/components/ReportButton";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, formatInt, money } from "@/src/utils/format";
@@ -42,6 +43,7 @@ export default function DespesasManutencaoScreen() {
 
   const Header = (
     <View>
+      <ReportButton route="/relatorio-manutencao" label={t("Relatório de Manutenção")} testID="open-maintenance-report" />
       <View style={styles.filterWrap}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContent}>
           {FILTERS.map((f) => {

@@ -8,6 +8,7 @@ import { TollExpense, useDeleteTollExpense, useTollExpenses } from "@/src/api/to
 import { SwipeableRow } from "@/src/components/SwipeableRow";
 import { SortMode, SortToggle, sortItems } from "@/src/components/SortToggle";
 import { useUndoableDelete } from "@/src/context/UndoDelete";
+import { ReportButton } from "@/src/components/ReportButton";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import {
@@ -106,6 +107,7 @@ export default function DespesasPedagiosScreen() {
         )}
         ListHeaderComponent={
           <>
+            <ReportButton route="/relatorio-pedagios" label={t("Relatório de Pedágios")} testID="open-toll-report" />
             {Summary}
             <SortToggle mode={sortMode} onChange={setSortMode} />
           </>

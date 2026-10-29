@@ -8,6 +8,7 @@ import { OtherExpense, useDeleteOtherExpense, useOtherExpenses } from "@/src/api
 import { SwipeableRow } from "@/src/components/SwipeableRow";
 import { SortMode, SortToggle, sortItems } from "@/src/components/SortToggle";
 import { useUndoableDelete } from "@/src/context/UndoDelete";
+import { ReportButton } from "@/src/components/ReportButton";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import {
@@ -104,6 +105,7 @@ export default function DespesasOutrosScreen() {
         )}
         ListHeaderComponent={
           <>
+            <ReportButton route="/relatorio-outros" label={t("Relatório de Outras Despesas")} testID="open-other-report" />
             {Summary}
             <SortToggle mode={sortMode} onChange={setSortMode} />
           </>

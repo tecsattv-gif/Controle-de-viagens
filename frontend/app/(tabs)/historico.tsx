@@ -143,6 +143,22 @@ export default function HistoricoScreen() {
           </View>
           <CaretRight size={22} color={colors.muted} weight="bold" />
         </Pressable>
+
+        <Pressable
+          style={styles.item}
+          onPress={() => router.push("/relatorio-outros")}
+          testID="menu-relatorio-outros"
+          accessibilityRole="button"
+        >
+          <View style={styles.iconBox}>
+            <Receipt size={26} color={colors.brandPrimary} weight="fill" />
+          </View>
+          <View style={styles.itemBody}>
+            <Text style={styles.itemTitle}>{t("Outras despesas")}</Text>
+            <Text style={styles.itemSub}>{t("Serviço, local e total no período")}</Text>
+          </View>
+          <CaretRight size={22} color={colors.muted} weight="bold" />
+        </Pressable>
       </ScrollView>
     </View>
   );

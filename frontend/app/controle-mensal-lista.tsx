@@ -12,6 +12,7 @@ import {
 } from "@/src/api/monthlyKm";
 import { SwipeableRow } from "@/src/components/SwipeableRow";
 import { useUndoableDelete } from "@/src/context/UndoDelete";
+import { ReportButton } from "@/src/components/ReportButton";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, formatInt } from "@/src/utils/format";
@@ -83,6 +84,10 @@ export default function ControleMensalListaScreen() {
           <X size={22} color={colors.onSurface} weight="bold" />
         </Pressable>
         <Text style={styles.title}>{t("Histórico mensal de KM")}</Text>
+      </View>
+
+      <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+        <ReportButton route="/relatorio-controle-mensal" label={t("Relatório do Controle Mensal")} testID="open-monthly-report" />
       </View>
 
       {isLoading ? (

@@ -1148,6 +1148,15 @@ const es: Table = {
   "A chave fica guardada só neste telefone.": "La clave se guarda solo en este teléfono.",
   "Os dados ficam só no telefone. Faça backup para não perder nada.": "Los datos quedan solo en el teléfono. Haga copias para no perder nada.",
   "Pergunte sobre o app e os seus dados usando a sua própria chave de IA.": "Pregunte sobre la app y sus datos usando su propia clave de IA.",
+  "Relatório de Outras Despesas": "Informe de Otros Gastos",
+  "RELATÓRIO DE OUTRAS DESPESAS": "INFORME DE OTROS GASTOS",
+  "Outras despesas": "Otros gastos",
+  "Serviço, local e total no período": "Servicio, lugar y total en el período",
+  "Relatório do Controle Mensal": "Informe del Control Mensual",
+  "RELATÓRIO DO CONTROLE MENSAL DE KM": "INFORME DEL CONTROL MENSUAL DE KM",
+  "Nenhum controle mensal no período.": "Ningún control mensual en el período.",
+  "{n} controle(s) mensal(is) no período": "{n} control(es) mensual(es) en el período",
+  "Fim": "Fin",
 };
 
 const en: Table = {
@@ -2283,6 +2292,15 @@ const en: Table = {
   "A chave fica guardada só neste telefone.": "The key is stored only on this phone.",
   "Os dados ficam só no telefone. Faça backup para não perder nada.": "Data stays only on the phone. Make backups so you don't lose anything.",
   "Pergunte sobre o app e os seus dados usando a sua própria chave de IA.": "Ask about the app and your data using your own AI key.",
+  "Relatório de Outras Despesas": "Other Expenses Report",
+  "RELATÓRIO DE OUTRAS DESPESAS": "OTHER EXPENSES REPORT",
+  "Outras despesas": "Other expenses",
+  "Serviço, local e total no período": "Service, place and total in the period",
+  "Relatório do Controle Mensal": "Monthly Control Report",
+  "RELATÓRIO DO CONTROLE MENSAL DE KM": "MONTHLY KM CONTROL REPORT",
+  "Nenhum controle mensal no período.": "No monthly control in the period.",
+  "{n} controle(s) mensal(is) no período": "{n} monthly control(s) in the period",
+  "Fim": "End",
 };
 
 const fr: Table = {
@@ -3418,6 +3436,15 @@ const fr: Table = {
   "A chave fica guardada só neste telefone.": "La clé est enregistrée uniquement sur ce téléphone.",
   "Os dados ficam só no telefone. Faça backup para não perder nada.": "Les données restent sur le téléphone. Faites des sauvegardes pour ne rien perdre.",
   "Pergunte sobre o app e os seus dados usando a sua própria chave de IA.": "Posez des questions sur l'app et vos données avec votre propre clé d'IA.",
+  "Relatório de Outras Despesas": "Rapport des Autres Dépenses",
+  "RELATÓRIO DE OUTRAS DESPESAS": "RAPPORT DES AUTRES DÉPENSES",
+  "Outras despesas": "Autres dépenses",
+  "Serviço, local e total no período": "Service, lieu et total sur la période",
+  "Relatório do Controle Mensal": "Rapport du Contrôle Mensuel",
+  "RELATÓRIO DO CONTROLE MENSAL DE KM": "RAPPORT DU CONTRÔLE MENSUEL DE KM",
+  "Nenhum controle mensal no período.": "Aucun contrôle mensuel sur la période.",
+  "{n} controle(s) mensal(is) no período": "{n} contrôle(s) mensuel(s) sur la période",
+  "Fim": "Fin",
 };
 
 // pt-PT: only the strings that differ from pt-BR; everything else falls back to

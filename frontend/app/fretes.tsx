@@ -8,6 +8,7 @@ import { Freight, useDeleteFreight, useFreights } from "@/src/api/freights";
 import { SwipeableRow } from "@/src/components/SwipeableRow";
 import { SortMode, SortToggle, sortItems } from "@/src/components/SortToggle";
 import { useUndoableDelete } from "@/src/context/UndoDelete";
+import { ReportButton } from "@/src/components/ReportButton";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, money } from "@/src/utils/format";
@@ -74,7 +75,9 @@ export default function FretesScreen() {
           <FreightCard item={item} onEdit={open} onDelete={(id) => removeWithUndo({ queryKey: ["freights"], id, run: () => deleteFreight.mutateAsync(id) })} />
         )}
         ListHeaderComponent={
-          items.length > 0 ? (
+          <>
+            <ReportButton route="/relatorio-fretes" label={t("Relatório de Fretes")} testID="open-freight-report" />
+            {items.length > 0 ? (
             <>
               <View style={styles.totalBar} testID="fretes-total">
                 <View style={styles.totalBarRow}>
@@ -90,7 +93,8 @@ export default function FretesScreen() {
               </View>
               <SortToggle mode={sortMode} onChange={setSortMode} />
             </>
-          ) : null
+            ) : null}
+          </>
         }
         ListEmptyComponent={emptyNode}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
