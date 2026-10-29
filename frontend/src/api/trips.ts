@@ -18,6 +18,11 @@ export type Trip = {
   end_time: string;
   loading_place: string;
   unloading_place: string;
+  // Coordenadas GPS gravadas ao preencher o local ("" = sem localização).
+  loading_lat?: string;
+  loading_lng?: string;
+  unloading_lat?: string;
+  unloading_lng?: string;
   rest_place: string;
   rest_stops: string[];
   notes: string;
@@ -51,6 +56,11 @@ export type TripInput = {
   end_time: string;
   loading_place: string;
   unloading_place: string;
+  // Coordenadas GPS gravadas ao preencher o local ("" = sem localização).
+  loading_lat?: string;
+  loading_lng?: string;
+  unloading_lat?: string;
+  unloading_lng?: string;
   rest_stops: string[];
   notes: string;
   freight_gross: number;

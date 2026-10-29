@@ -20,6 +20,7 @@ import { DateInputField } from "@/src/components/DateInputField";
 import { SelectField } from "@/src/components/SelectField";
 import { useT } from "@/src/i18n";
 import { TextField } from "@/src/components/TextField";
+import { CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import {
   formatInt,
@@ -50,6 +51,8 @@ export default function EditarViagemScreen() {
   const [kmEnd, setKmEnd] = useState("");
   const [loading, setLoading] = useState("");
   const [unload, setUnload] = useState("");
+  const loadGps = useCoordsField();
+  const unloadGps = useCoordsField();
   const [notes, setNotes] = useState("");
   const [vehicleId, setVehicleId] = useState("");
   const [driverId, setDriverId] = useState("");
@@ -74,6 +77,8 @@ export default function EditarViagemScreen() {
       setKmEnd(existing.km_end ? String(existing.km_end) : "");
       setLoading(existing.loading_place);
       setUnload(existing.unloading_place);
+      loadGps.setCoords({ lat: existing.loading_lat || "", lng: existing.loading_lng || "" });
+      unloadGps.setCoords({ lat: existing.unloading_lat || "", lng: existing.unloading_lng || "" });
       setNotes(existing.notes);
       setVehicleId(existing.vehicle_id || "");
       setDriverId(existing.driver_id || "");
@@ -106,6 +111,10 @@ export default function EditarViagemScreen() {
           end_time: existing?.end_time || "",
           loading_place: loading.trim(),
           unloading_place: unload.trim(),
+          loading_lat: loadGps.coords.lat,
+          loading_lng: loadGps.coords.lng,
+          unloading_lat: unloadGps.coords.lat,
+          unloading_lng: unloadGps.coords.lng,
           rest_stops:
             existing?.rest_stops && existing.rest_stops.length > 0
               ? existing.rest_stops
@@ -234,8 +243,10 @@ export default function EditarViagemScreen() {
               </View>
             </View>
 
-            <TextField label={t("Local de carregamento")} value={loading} onChangeText={setLoading} placeholder={t("Ex.: Centro de distribuição")} error={errors.loading} testID="edit-loading" />
-            <TextField label={t("Local de descarga")} value={unload} onChangeText={setUnload} placeholder={t("Ex.: Cliente / destino")} error={errors.unloading} testID="edit-unloading" />
+            <TextField label={t("Local de carregamento")} value={loading} onChangeText={setLoading} placeholder={t("Ex.: Centro de distribuição")} error={errors.loading} onFocus={() => loadGps.capture()} testID="edit-loading" />
+            <CoordsRow coords={loadGps.coords} locating={loadGps.locating} error={loadGps.error} onRefresh={() => loadGps.capture(true)} testID="edit-coords-loading" />
+            <TextField label={t("Local de descarga")} value={unload} onChangeText={setUnload} placeholder={t("Ex.: Cliente / destino")} error={errors.unloading} onFocus={() => unloadGps.capture()} testID="edit-unloading" />
+            <CoordsRow coords={unloadGps.coords} locating={unloadGps.locating} error={unloadGps.error} onRefresh={() => unloadGps.capture(true)} testID="edit-coords-unloading" />
 
             <TextField label={t("Observações")} value={notes} onChangeText={setNotes} placeholder={t("Opcional")} multiline numberOfLines={3} style={styles.notesInput} testID="edit-notes" />
 

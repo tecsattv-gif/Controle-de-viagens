@@ -19,6 +19,7 @@ import { findOpenTrip, useCreateTrip, useTrips } from "@/src/api/trips";
 import { useVehicles, vehicleLabel, vehicleTitle } from "@/src/api/vehicles";
 import { useDrivers } from "@/src/api/drivers";
 import { DateInputField } from "@/src/components/DateInputField";
+import { CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
 import { SelectField } from "@/src/components/SelectField";
 import { TextField } from "@/src/components/TextField";
 import { useT } from "@/src/i18n";
@@ -55,6 +56,8 @@ export default function ViagemFormScreen() {
   const [kmEnd, setKmEnd] = useState("");
   const [loading, setLoading] = useState("");
   const [unload, setUnload] = useState("");
+  const loadGps = useCoordsField();
+  const unloadGps = useCoordsField();
   const [notes, setNotes] = useState("");
   const [vehicleId, setVehicleId] = useState("");
   const [driverId, setDriverId] = useState("");
@@ -77,6 +80,8 @@ export default function ViagemFormScreen() {
     setKmEnd("");
     setLoading("");
     setUnload("");
+    loadGps.setCoords({ lat: "", lng: "" });
+    unloadGps.setCoords({ lat: "", lng: "" });
     setNotes("");
     setVehicleId("");
     setDriverId("");
@@ -118,6 +123,10 @@ export default function ViagemFormScreen() {
         end_time: "",
         loading_place: loading.trim(),
         unloading_place: unload.trim(),
+        loading_lat: loadGps.coords.lat,
+        loading_lng: loadGps.coords.lng,
+        unloading_lat: unloadGps.coords.lat,
+        unloading_lng: unloadGps.coords.lng,
         rest_stops: [],
         notes: notes.trim(),
         ...freightToInput(emptyFreight),
@@ -233,14 +242,30 @@ export default function ViagemFormScreen() {
           onChangeText={setLoading}
           placeholder={t("Ex.: Centro de distribuição")}
           error={errors.loading}
+          onFocus={() => loadGps.capture()}
           testID="field-loading"
+        />
+        <CoordsRow
+          coords={loadGps.coords}
+          locating={loadGps.locating}
+          error={loadGps.error}
+          onRefresh={() => loadGps.capture(true)}
+          testID="coords-loading"
         />
         <TextField
           label={t("Local de descarga")}
           value={unload}
           onChangeText={setUnload}
           placeholder={t("Ex.: Cliente / destino")}
+          onFocus={() => unloadGps.capture()}
           testID="field-unloading"
+        />
+        <CoordsRow
+          coords={unloadGps.coords}
+          locating={unloadGps.locating}
+          error={unloadGps.error}
+          onRefresh={() => unloadGps.capture(true)}
+          testID="coords-unloading"
         />
         <TextField
           label={t("Observações")}

@@ -65,7 +65,8 @@ const TOLL = { value: FLOAT, currency: "EUR" };
 
 const TRIP = {
   date: "", end_date: "", km_start: INT, km_end: INT, start_time: "", end_time: "",
-  loading_place: "", unloading_place: "", rest_place: "", rest_stops: "__list_str__", notes: "",
+  loading_place: "", unloading_place: "",
+  loading_lat: "", loading_lng: "", unloading_lat: "", unloading_lng: "", rest_place: "", rest_stops: "__list_str__", notes: "",
   freight_gross: FLOAT, freight_gross_currency: "EUR", freight_net: FLOAT, freight_net_currency: "EUR",
   freight_paid: FLOAT, freight_paid_currency: "EUR", freight_payment_date: "", freight_status: "Não informado",
   freight_diesel: FLOAT, freight_diesel_currency: "EUR", freight_arla: FLOAT, freight_arla_currency: "EUR",
