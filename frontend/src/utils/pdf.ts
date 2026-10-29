@@ -7,6 +7,8 @@
 
 import * as Print from "expo-print";
 
+import { themeReportHtml } from "@/src/utils/reportColors";
+
 const A4_W = 595;
 const A4_H = 842;
 
@@ -15,6 +17,7 @@ const FIT_CSS =
   "<style>img{max-width:100%}table{max-width:100%}th,td{overflow-wrap:anywhere;word-wrap:break-word}</style>";
 
 function withFit(html: string): string {
+  html = themeReportHtml(html);
   return html.includes("</head>") ? html.replace("</head>", `${FIT_CSS}</head>`) : FIT_CSS + html;
 }
 

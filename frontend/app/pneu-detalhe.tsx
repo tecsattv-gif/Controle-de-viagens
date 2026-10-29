@@ -23,8 +23,9 @@ import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { configPositions, positionLabel, stateColor, treadState } from "@/src/utils/axleMaps";
 import { formatDateBR, formatInt, toISODate } from "@/src/utils/format";
 import { companyPdfHeaderHtml, useReportHeader } from "@/src/utils/reportHeader";
-import { tireKmRun, vehicleCurrentKm } from "@/src/utils/tireKm";
+import { measurementKmSteps, tireKmRun, vehicleCurrentKm } from "@/src/utils/tireKm";
 import { htmlToPdf } from "@/src/utils/pdf";
+import { themeReportHtml } from "@/src/utils/reportColors";
 import { buildTireReportHtml } from "@/src/utils/tireReportHtml";
 
 function esc(s: string): string {
@@ -64,6 +65,7 @@ export default function PneuDetalheScreen() {
   }, []);
   const [mDate, setMDate] = useState(new Date());
   const [mTread, setMTread] = useState("");
+  const [mKm, setMKm] = useState("");
   const [mNotes, setMNotes] = useState("");
   const [exporting, setExporting] = useState(false);
 
@@ -77,6 +79,13 @@ export default function PneuDetalheScreen() {
 
   const currentKm = vehicleCurrentKm(tire?.vehicle_id || "", trips);
   const kmRun = tire ? tireKmRun(tire, currentKm) : null;
+  const kmSteps = useMemo(() => (tire ? measurementKmSteps(tire) : {}), [tire]);
+
+  const openMeasure = () => {
+    // Já sugere o KM atual do veículo (maior KM final das viagens); pode ser alterado.
+    setMKm(currentKm ? String(currentKm) : "");
+    setMeasureOpen(true);
+  };
 
   if (isLoading && !tire) {
     return (
@@ -100,13 +109,15 @@ export default function PneuDetalheScreen() {
   const saveMeasure = () => {
     const val = parseFloat(mTread.replace(",", "."));
     if (isNaN(val)) return;
+    const kmVal = parseInt(mKm.replace(/\D/g, ""), 10);
     addMeasure.mutate(
-      { id: tire.id, date: toISODate(mDate), tread_mm: val, notes: mNotes.trim() },
+      { id: tire.id, date: toISODate(mDate), tread_mm: val, km: isNaN(kmVal) || kmVal <= 0 ? null : kmVal, notes: mNotes.trim() },
       {
         onSuccess: () => {
           if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           setMeasureOpen(false);
           setMTread("");
+          setMKm("");
           setMNotes("");
         },
       },
@@ -135,7 +146,7 @@ export default function PneuDetalheScreen() {
       }
     } catch {
       try {
-        await Print.printAsync({ html });
+        await Print.printAsync({ html: themeReportHtml(html) });
       } catch {
         // ignore
       }
@@ -183,7 +194,7 @@ export default function PneuDetalheScreen() {
             <PencilSimple size={20} color={colors.brandPrimary} weight="bold" />
             <Text style={styles.actionTxt}>{t("Editar")}</Text>
           </Pressable>
-          <Pressable style={styles.actionBtn} onPress={() => setMeasureOpen(true)} testID="tire-measure">
+          <Pressable style={styles.actionBtn} onPress={openMeasure} testID="tire-measure">
             <Ruler size={20} color={colors.brandPrimary} weight="bold" />
             <Text style={styles.actionTxt}>{t("Medir Sulco")}</Text>
           </Pressable>
@@ -203,6 +214,12 @@ export default function PneuDetalheScreen() {
               <View key={m.id} style={styles.measRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.measDate}>{formatDateBR(m.date)}</Text>
+                  {m.km ? (
+                    <Text style={styles.measKm}>
+                      {formatInt(m.km)} km
+                      {kmSteps[m.id] ? `  ·  ${t("rodou")} ${formatInt(kmSteps[m.id] as number)} km` : ""}
+                    </Text>
+                  ) : null}
                   {m.notes ? <Text style={styles.measNotes}>{m.notes}</Text> : null}
                 </View>
                 <Text style={styles.measMm}>{m.tread_mm} mm</Text>
@@ -236,6 +253,7 @@ export default function PneuDetalheScreen() {
             </View>
             <DateInputField label={t("Data da medição")} value={mDate} onChange={setMDate} style={{ flex: 0 }} testID="field-measure-date" />
             <TextField label={t("Profundidade do sulco (mm)")} value={mTread} onChangeText={setMTread} keyboardType="decimal-pad" placeholder="0" testID="field-measure-tread" />
+            <TextField label={t("KM do veículo")} value={mKm} onChangeText={setMKm} keyboardType="number-pad" placeholder="0" testID="field-measure-km" />
             <TextField label={t("Observações (opcional)")} value={mNotes} onChangeText={setMNotes} placeholder={t("Observações")} testID="field-measure-notes" />
             <Pressable style={[styles.pdfBtn, addMeasure.isPending && styles.disabled]} onPress={saveMeasure} disabled={addMeasure.isPending} testID="save-measure">
               {addMeasure.isPending ? <ActivityIndicator color={colors.onBrandPrimary} /> : <Text style={styles.pdfTxt}>{t("Salvar medição")}</Text>}
@@ -313,6 +331,7 @@ const useStyles = makeStyles((colors) => ({
     padding: 12,
   },
   measDate: { fontFamily: fonts.displaySemiBold, fontSize: 14, color: colors.onSurface },
+  measKm: { fontFamily: fonts.body, fontSize: 12, color: colors.brandPrimary, marginTop: 2 },
   measNotes: { fontFamily: fonts.body, fontSize: 12, color: colors.muted, marginTop: 2 },
   measMm: { fontFamily: fonts.displayBold, fontSize: 15, color: colors.onSurface },
   measDel: { width: 32, height: 32, alignItems: "center", justifyContent: "center" },

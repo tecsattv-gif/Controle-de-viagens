@@ -18,6 +18,7 @@ import { companyPdfHeaderHtml, useReportHeader } from "@/src/utils/reportHeader"
 import { tireKmRun, vehicleCurrentKm } from "@/src/utils/tireKm";
 import { buildTireReportHtml } from "@/src/utils/tireReportHtml";
 import { htmlToPdf } from "@/src/utils/pdf";
+import { themeReportHtml } from "@/src/utils/reportColors";
 
 function esc(s: string): string {
   return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -71,7 +72,7 @@ export default function PneusRelatoriosScreen() {
       }
     } catch {
       try {
-        await Print.printAsync({ html });
+        await Print.printAsync({ html: themeReportHtml(html) });
       } catch {
         // ignore
       }

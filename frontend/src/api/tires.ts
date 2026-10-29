@@ -8,6 +8,7 @@ export type TireMeasurement = {
   id: string;
   date: string;
   tread_mm: number;
+  km?: number | null; // KM do veículo no dia da medição (medições antigas não têm)
   notes: string;
   created_at: string;
 };
@@ -103,8 +104,8 @@ export function useDeleteTire() {
 export function useAddMeasurement() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, date, tread_mm, notes }: { id: string; date: string; tread_mm: number; notes: string }) =>
-      request<Tire>(`/tires/${id}/measurements`, { method: "POST", body: JSON.stringify({ date, tread_mm, notes }) }),
+    mutationFn: ({ id, date, tread_mm, km, notes }: { id: string; date: string; tread_mm: number; km: number | null; notes: string }) =>
+      request<Tire>(`/tires/${id}/measurements`, { method: "POST", body: JSON.stringify({ date, tread_mm, km, notes }) }),
     onSuccess: () => invalidateTires(qc),
   });
 }

@@ -1,6 +1,7 @@
 import type { Tire } from "@/src/api/tires";
 import type { TireState } from "@/src/utils/axleMaps";
 import { formatDateBR, formatInt, toISODate } from "@/src/utils/format";
+import { measurementKmSteps } from "@/src/utils/tireKm";
 
 type T = (source: string, vars?: Record<string, string | number>) => string;
 
@@ -65,14 +66,18 @@ export function buildTireReportHtml(p: TireReportInput): string {
   const dash = `<span class="muted">—</span>`;
   const v = (s: string | null | undefined) => (s ? esc(s) : dash);
 
-  const meas = [...(tire.measurements || [])].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+  const meas = [...(tire.measurements || [])].sort(
+    (a, b) => (a.date || "").localeCompare(b.date || "") || (a.created_at || "").localeCompare(b.created_at || ""),
+  );
+  const steps = measurementKmSteps(tire);
   const measRows = meas.length
     ? meas
-        .map(
-          (m) => `<tr><td class="date">${esc(formatDateBR(m.date))}</td><td class="num"><b>${m.tread_mm}</b> mm</td><td>${v(m.notes)}</td></tr>`,
-        )
+        .map((m) => {
+          const step = steps[m.id];
+          return `<tr><td class="date">${esc(formatDateBR(m.date))}</td><td class="num">${m.km ? formatInt(m.km) + " km" : dash}</td><td class="num">${step ? "<b>" + formatInt(step) + " km</b>" : dash}</td><td class="num"><b>${m.tread_mm}</b> mm</td><td>${v(m.notes)}</td></tr>`;
+        })
         .join("")
-    : `<tr><td colspan="3" class="empty">${esc(t("Nenhuma medição registrada"))}</td></tr>`;
+    : `<tr><td colspan="5" class="empty">${esc(t("Nenhuma medição registrada"))}</td></tr>`;
 
   const movs = [...(tire.movements || [])].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
   const movRows = movs.length
@@ -126,7 +131,7 @@ export function buildTireReportHtml(p: TireReportInput): string {
     </table>
 
     <div class="section">${esc(t("Histórico de medições"))}</div>
-    <table><thead><tr><th>${esc(t("Data"))}</th><th class="num" style="width:14%">${esc(t("Sulco"))}</th><th>${esc(t("Observações"))}</th></tr></thead><tbody>${measRows}</tbody></table>
+    <table><thead><tr><th>${esc(t("Data"))}</th><th class="num" style="width:16%">KM</th><th class="num" style="width:18%">${esc(t("KM rodados"))}</th><th class="num" style="width:12%">${esc(t("Sulco"))}</th><th>${esc(t("Observações"))}</th></tr></thead><tbody>${measRows}</tbody></table>
 
     <div class="section">${esc(t("Mudanças de posição"))}</div>
     <table><thead><tr><th>${esc(t("Data"))}</th><th>${esc(t("Movimentação"))}</th><th class="num" style="width:18%">KM</th></tr></thead><tbody>${movRows}</tbody></table>

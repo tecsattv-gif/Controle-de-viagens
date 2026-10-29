@@ -18,6 +18,7 @@ import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, money, toISODate } from "@/src/utils/format";
 import { htmlToPdf } from "@/src/utils/pdf";
+import { themeReportHtml } from "@/src/utils/reportColors";
 
 function esc(s: string): string {
   return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -135,7 +136,7 @@ export default function RelatorioGeralScreen() {
       }
     } catch {
       try {
-        await Print.printAsync({ html });
+        await Print.printAsync({ html: themeReportHtml(html) });
       } catch {
         setBanner(t("Não foi possível gerar o PDF neste dispositivo."));
       }

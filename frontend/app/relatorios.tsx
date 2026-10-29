@@ -33,6 +33,7 @@ import {
   FreightTotals,
 } from "@/src/utils/freight";
 import { htmlToPdf } from "@/src/utils/pdf";
+import { themeReportHtml } from "@/src/utils/reportColors";
 function dateRange(t: Trip): string {
   return t.end_date && t.end_date !== t.date
     ? `${formatDateBR(t.date)} → ${formatDateBR(t.end_date)}`
@@ -408,7 +409,7 @@ export default function RelatoriosScreen() {
       }
     } catch {
       try {
-        await Print.printAsync({ html: htmlWithCompany });
+        await Print.printAsync({ html: themeReportHtml(htmlWithCompany) });
       } catch {
         setBanner(t("Não foi possível gerar o PDF neste dispositivo."));
       }

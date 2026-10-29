@@ -315,7 +315,7 @@ async function tireCreate(body: Doc) {
     created_at: nowIso(),
   };
   if (p.current_tread_mm && p.install_date) {
-    t.measurements = [{ id: newId(), date: p.install_date, tread_mm: p.current_tread_mm, notes: "", created_at: nowIso() }];
+    t.measurements = [{ id: newId(), date: p.install_date, tread_mm: p.current_tread_mm, km: p.install_km || null, notes: "", created_at: nowIso() }];
   }
   items.push(t);
   await save("tires", items);
@@ -344,7 +344,7 @@ async function tireDelete(id: string) {
 async function tireAddMeasurement(id: string, body: Doc) {
   const items = await all("tires");
   const t = await tireFind(items, id);
-  const m: Doc = { id: newId(), ...pick({ date: "", tread_mm: FLOAT, notes: "" }, body), created_at: nowIso() };
+  const m: Doc = { id: newId(), ...pick({ date: "", tread_mm: FLOAT, km: OPT_INT, notes: "" }, body), created_at: nowIso() };
   t.measurements = [...(t.measurements || []), m];
   t.current_tread_mm = m.tread_mm;
   await save("tires", items);

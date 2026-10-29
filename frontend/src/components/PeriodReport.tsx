@@ -15,6 +15,7 @@ import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, toISODate } from "@/src/utils/format";
 import { companyPdfHeaderHtml, useReportHeader } from "@/src/utils/reportHeader";
 import { htmlToPdf } from "@/src/utils/pdf";
+import { themeReportHtml } from "@/src/utils/reportColors";
 
 export type ReportRow = { left: string; right?: string; infos?: string[] };
 export type ReportTotal = { label: string; value: string };
@@ -144,7 +145,7 @@ export function PeriodReport<T>({
       }
     } catch {
       try {
-        await Print.printAsync({ html });
+        await Print.printAsync({ html: themeReportHtml(html) });
       } catch {
         setBanner(t("Não foi possível gerar o PDF neste dispositivo."));
       }

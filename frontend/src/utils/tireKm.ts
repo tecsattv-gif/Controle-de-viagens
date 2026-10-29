@@ -18,3 +18,20 @@ export function tireKmRun(tire: Tire, currentKm: number | null): number | null {
   const run = base - (tire.install_km || 0);
   return run >= 0 ? run : null;
 }
+
+// KM rodados entre uma medição de sulco e a anterior (a primeira compara com o KM
+// de instalação). Devolve, por id da medição, a diferença — ou null quando a
+// medição não tem KM ou não há KM anterior para comparar.
+export function measurementKmSteps(tire: Tire): Record<string, number | null> {
+  const sorted = [...(tire.measurements || [])].sort(
+    (a, b) => (a.date || "").localeCompare(b.date || "") || (a.created_at || "").localeCompare(b.created_at || ""),
+  );
+  const out: Record<string, number | null> = {};
+  let prev: number | null = tire.install_km ? tire.install_km : null;
+  for (const m of sorted) {
+    const km = m.km && m.km > 0 ? m.km : null;
+    out[m.id] = km != null && prev != null && km >= prev ? km - prev : null;
+    if (km != null) prev = km;
+  }
+  return out;
+}

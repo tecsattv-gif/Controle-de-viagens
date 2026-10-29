@@ -39,6 +39,7 @@ import { useUndoableDelete } from "@/src/context/UndoDelete";
 import { useReportHeader } from "@/src/utils/reportHeader";
 import { companyPdfHeaderHtml } from "@/src/utils/reportHeader";
 import { htmlToPdf } from "@/src/utils/pdf";
+import { themeReportHtml } from "@/src/utils/reportColors";
 
 function escapeHtml(s: string): string {
   return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -206,7 +207,7 @@ export default function RelatorioAbastecimentosScreen() {
       }
     } catch {
       try {
-        await Print.printAsync({ html });
+        await Print.printAsync({ html: themeReportHtml(html) });
       } catch {
         setBanner("Não foi possível gerar o PDF neste dispositivo.");
       }
