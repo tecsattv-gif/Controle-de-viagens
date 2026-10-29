@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Location from "expo-location";
-import { ArrowClockwise, Clock, FloppyDisk, MapPin, PathIcon as Path, Plus, Warning, X } from "phosphor-react-native";
+import { ArrowClockwise, Clock, FloppyDisk, MapPin, PathIcon as Path, Plus, Trash, Warning, X } from "phosphor-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -27,7 +27,7 @@ import {
 } from "@/src/api/dailyLogs";
 import { DateInputField } from "@/src/components/DateInputField";
 import { TextField } from "@/src/components/TextField";
-import { CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
+import { confirmClearCoords, CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import {
@@ -262,6 +262,7 @@ export default function ControleDiarioFormScreen() {
               locating={startGps.locating}
               error={startGps.error}
               onRefresh={() => startGps.capture(true)}
+              onClear={startGps.clear}
               testID="cd-coords-start"
             />
             <View style={styles.row}>
@@ -304,6 +305,7 @@ export default function ControleDiarioFormScreen() {
               locating={endGps.locating}
               error={endGps.error}
               onRefresh={() => endGps.capture(true)}
+              onClear={endGps.clear}
               testID="cd-coords-end"
             />
             <View style={styles.row}>
@@ -384,6 +386,19 @@ export default function ControleDiarioFormScreen() {
                   ) : (
                     <Text style={[styles.coordText, { flex: 1 }]}>{t("Sem coordenadas")}</Text>
                   )}
+                  {stop.lat && stop.lng && !locating[i] ? (
+                    <Pressable
+                      onPress={() =>
+                        confirmClearCoords(t, () =>
+                          setStops((prev) => prev.map((x, idx) => (idx === i ? { ...x, lat: "", lng: "" } : x))),
+                        )
+                      }
+                      hitSlop={10}
+                      testID={`cd-stop-clear-${i}`}
+                    >
+                      <Trash size={18} color={colors.error} weight="bold" />
+                    </Pressable>
+                  ) : null}
                   {Platform.OS !== "web" && !locating[i] ? (
                     <Pressable onPress={() => fillStopLocation(i)} hitSlop={10} testID={`cd-stop-gps-${i}`}>
                       <ArrowClockwise size={18} color={colors.brandPrimary} weight="bold" />

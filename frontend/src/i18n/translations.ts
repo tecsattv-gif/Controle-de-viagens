@@ -6,6 +6,8 @@ import type { LangCode } from "./index";
 type Table = Record<string, string>;
 
 const es: Table = {
+  "Apagar coordenadas": "Borrar coordenadas",
+  "Apagar as coordenadas deste local?": "¿Borrar las coordenadas de este lugar?",
   "Permita o acesso à localização para gravar as coordenadas.": "Permita el acceso a la ubicación para guardar las coordenadas.",
   "Permita o acesso à localização para gravar as coordenadas da parada.": "Permita el acceso a la ubicación para guardar las coordenadas de la parada.",
   "Não foi possível obter a localização. Verifique se o GPS está ligado.": "No fue posible obtener la ubicación. Verifique que el GPS esté activado.",
@@ -1175,6 +1177,8 @@ const es: Table = {
 };
 
 const en: Table = {
+  "Apagar coordenadas": "Delete coordinates",
+  "Apagar as coordenadas deste local?": "Delete the coordinates of this place?",
   "Permita o acesso à localização para gravar as coordenadas.": "Allow location access to save the coordinates.",
   "Permita o acesso à localização para gravar as coordenadas da parada.": "Allow location access to save the stop coordinates.",
   "Não foi possível obter a localização. Verifique se o GPS está ligado.": "Could not get the location. Check that GPS is on.",
@@ -2334,6 +2338,8 @@ const en: Table = {
 };
 
 const fr: Table = {
+  "Apagar coordenadas": "Supprimer les coordonnées",
+  "Apagar as coordenadas deste local?": "Supprimer les coordonnées de ce lieu ?",
   "Permita o acesso à localização para gravar as coordenadas.": "Autorisez l'accès à la localisation pour enregistrer les coordonnées.",
   "Permita o acesso à localização para gravar as coordenadas da parada.": "Autorisez l'accès à la localisation pour enregistrer les coordonnées de l'arrêt.",
   "Não foi possível obter a localização. Verifique se o GPS está ligado.": "Impossible d'obtenir la localisation. Vérifiez que le GPS est activé.",

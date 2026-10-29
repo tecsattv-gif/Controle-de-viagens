@@ -244,9 +244,9 @@ export default function EditarViagemScreen() {
             </View>
 
             <TextField label={t("Local de carregamento")} value={loading} onChangeText={setLoading} placeholder={t("Ex.: Centro de distribuição")} error={errors.loading} onFocus={() => loadGps.capture()} testID="edit-loading" />
-            <CoordsRow coords={loadGps.coords} locating={loadGps.locating} error={loadGps.error} onRefresh={() => loadGps.capture(true)} testID="edit-coords-loading" />
+            <CoordsRow coords={loadGps.coords} locating={loadGps.locating} error={loadGps.error} onRefresh={() => loadGps.capture(true)} onClear={loadGps.clear} testID="edit-coords-loading" />
             <TextField label={t("Local de descarga")} value={unload} onChangeText={setUnload} placeholder={t("Ex.: Cliente / destino")} error={errors.unloading} onFocus={() => unloadGps.capture()} testID="edit-unloading" />
-            <CoordsRow coords={unloadGps.coords} locating={unloadGps.locating} error={unloadGps.error} onRefresh={() => unloadGps.capture(true)} testID="edit-coords-unloading" />
+            <CoordsRow coords={unloadGps.coords} locating={unloadGps.locating} error={unloadGps.error} onRefresh={() => unloadGps.capture(true)} onClear={unloadGps.clear} testID="edit-coords-unloading" />
 
             <TextField label={t("Observações")} value={notes} onChangeText={setNotes} placeholder={t("Opcional")} multiline numberOfLines={3} style={styles.notesInput} testID="edit-notes" />
 
