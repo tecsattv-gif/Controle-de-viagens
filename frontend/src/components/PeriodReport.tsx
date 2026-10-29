@@ -106,7 +106,7 @@ export function PeriodReport<T>({
     const head = pdfHeaders.map((h, i) => `<th${cls(i)}>${esc(h)}</th>`).join("");
     const rows = items.length
       ? items
-          .map((x) => `<tr>${pdfCells(x).map((c, i) => `<td${cls(i)}>${esc(c)}</td>`).join("")}</tr>`)
+          .map((x) => `<tr>${pdfCells(x).map((c, i) => `<td${cls(i)}>${esc(c).replace(/ • /g, ' <b class="sep">•</b> ')}</td>`).join("")}</tr>`)
           .join("")
       : `<tr><td colspan="${pdfHeaders.length}" class="muted">${esc(emptyLabel)}</td></tr>`;
     const grand = totalLines
@@ -124,6 +124,7 @@ export function PeriodReport<T>({
         td{padding:6px;border-bottom:1px solid #f0f0f0}
         .r{text-align:right;white-space:nowrap}
         .muted{color:#888;text-align:center;padding:10px}
+        .sep{font-size:1.5em;font-weight:900;line-height:1;vertical-align:-0.1em;padding:0 2px}
         .grand{margin-top:12px;background:#121212;color:#fff;border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;font-weight:700}
         .grand .val{color:#FF8A3D}
       </style></head><body>
