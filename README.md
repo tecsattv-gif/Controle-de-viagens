@@ -23,6 +23,14 @@ Em cada linha: tocar nas coordenadas abre o Google Maps, ↻ busca de novo e �
 
 Nos relatórios PDF por período, o separador **•** entre itens sai maior e em negrito.
 
+## Backup na pasta (Android)
+Em Cadastros → Backup e restauração:
+- **Fazer backup na pasta**: na primeira vez o app pede para escolher uma pasta do telefone (ex.: Documentos). Depois, cada backup é gravado nela como `controle-viagens-backup.json`, **apagando o backup anterior** (inclusive os antigos com data no nome), para não acumular arquivos. **Trocar pasta** escolhe outra.
+- **Enviar backup**: cria o arquivo e abre o Compartilhar (Drive, WhatsApp, e-mail).
+- **Restaurar backup**: escolhe o arquivo `.json`.
+
+Código: `saveBackupToFolder` em `frontend/src/local/backup.ts` (a pasta fica salva com a chave `backup_folder_uri_v1`).
+
 ## APK de teste
 O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` um APK de teste ("Viagens TESTE", pacote `.teste`), que instala ao lado do app oficial. Baixe em **Actions → artefato `controle-viagens-teste-apk`**.
 

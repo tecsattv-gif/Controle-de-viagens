@@ -7,6 +7,7 @@ import { Directory, File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
 
+import { storage } from "@/src/utils/storage";
 import { LOCAL_PREFIX, localFile } from "@/src/utils/upload";
 
 import { flush, listKeys, load, nowIso, remove, save } from "./db";
@@ -92,6 +93,72 @@ export async function exportBackup(): Promise<BackupSummary> {
     });
   }
   return summarize(b);
+}
+
+// ---------------------------------------------------------------------------
+// Backup numa pasta fixa do telefone, sempre substituindo o anterior.
+// ---------------------------------------------------------------------------
+const FOLDER_KEY = "backup_folder_uri_v1";
+const FIXED_NAME = "controle-viagens-backup.json";
+const OLD_NAME = /^controle-viagens-backup.*\.json$/i;
+
+/** Nome legível da pasta escolhida (ou "" se ainda não escolheu). */
+export async function backupFolderLabel(): Promise<string> {
+  const uri = await storage.getItem<string>(FOLDER_KEY, "");
+  if (!uri) return "";
+  const last = decodeURIComponent(uri).split(/[/:]/).filter(Boolean).pop() || "";
+  return last;
+}
+
+async function folder(pickNew: boolean): Promise<Directory | null> {
+  if (!pickNew) {
+    const uri = await storage.getItem<string>(FOLDER_KEY, "");
+    if (uri) {
+      try {
+        const d = new Directory(uri);
+        if (d.exists) {
+          d.list(); // confirma que ainda temos permissão
+          return d;
+        }
+      } catch {
+        // permissão perdida: pede a pasta de novo
+      }
+    }
+  }
+  try {
+    const d = await Directory.pickDirectoryAsync();
+    if (!d) return null;
+    await storage.setItem(FOLDER_KEY, d.uri);
+    return d;
+  } catch {
+    return null; // cancelou
+  }
+}
+
+/**
+ * Grava o backup na pasta escolhida (a primeira vez pergunta qual),
+ * apagando o backup anterior que estiver lá. Devolve null se cancelou.
+ */
+export async function saveBackupToFolder(
+  pickNew = false,
+): Promise<(BackupSummary & { replaced: number; folder: string }) | null> {
+  const dir = await folder(pickNew);
+  if (!dir) return null;
+  const b = await buildBackup();
+  let replaced = 0;
+  for (const item of dir.list()) {
+    if (item instanceof File && OLD_NAME.test(item.name)) {
+      try {
+        item.delete();
+        replaced++;
+      } catch (e) {
+        console.warn("[backup] não apagou", item.name, e);
+      }
+    }
+  }
+  const f = dir.createFile(FIXED_NAME, "application/json");
+  f.write(JSON.stringify(b));
+  return { ...summarize(b), replaced, folder: await backupFolderLabel() };
 }
 
 /** Escolhe um arquivo de backup e devolve o conteúdo (ainda sem restaurar). */

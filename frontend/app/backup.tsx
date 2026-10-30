@@ -1,12 +1,12 @@
 import { useRouter } from "expo-router";
-import { CloudArrowDown, CloudArrowUp, ShieldCheck, UserSwitch, X } from "phosphor-react-native";
+import { CloudArrowDown, CloudArrowUp, FolderSimple, ShieldCheck, UserSwitch, X } from "phosphor-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/src/context/AuthContext";
 import { useT } from "@/src/i18n";
-import { exportBackup, pickBackup, restoreBackup } from "@/src/local/backup";
+import { backupFolderLabel, exportBackup, pickBackup, restoreBackup, saveBackupToFolder } from "@/src/local/backup";
 import {
   getMigrationState,
   importFromServer,
@@ -42,7 +42,7 @@ export default function BackupScreen() {
   const t = useT();
   const { refreshMe } = useAuth();
 
-  const [busy, setBusy] = useState<"" | "export" | "restore" | "import">("");
+  const [busy, setBusy] = useState<"" | "export" | "restore" | "import" | "folder">("");
   const [showImport, setShowImport] = useState(false);
   const [importedFromServer, setImportedFromServer] = useState(false);
   const [email, setEmail] = useState("");
@@ -57,6 +57,33 @@ export default function BackupScreen() {
     queryClient.clear();
     await queryClient.invalidateQueries();
     await refreshMe();
+  };
+
+  const [folderName, setFolderName] = useState("");
+  useEffect(() => {
+    backupFolderLabel().then(setFolderName);
+  }, []);
+
+  // Grava na pasta escolhida, substituindo o backup anterior.
+  const doSaveFolder = async (pickNew = false) => {
+    setBusy("folder");
+    try {
+      const r = await saveBackupToFolder(pickNew);
+      if (!r) return;
+      setFolderName(r.folder);
+      notify(
+        t("Backup salvo"),
+        t("Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.", {
+          f: r.folder,
+          r: r.records,
+          p: r.photos,
+        }),
+      );
+    } catch (e: any) {
+      notify(t("Erro"), e?.message || t("Não foi possível criar o backup."));
+    } finally {
+      setBusy("");
+    }
   };
 
   const doExport = async () => {
@@ -171,6 +198,33 @@ export default function BackupScreen() {
           </Text>
         </View>
 
+        {Platform.OS === "android" ? (
+          <View>
+            <Pressable style={styles.card} onPress={() => doSaveFolder(false)} disabled={!!busy} testID="backup-folder">
+              <View style={styles.cardIcon}>
+                {busy === "folder" ? (
+                  <ActivityIndicator color={colors.onBrandPrimary} />
+                ) : (
+                  <FolderSimple size={26} color={colors.onBrandPrimary} weight="fill" />
+                )}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>{t("Fazer backup na pasta")}</Text>
+                <Text style={styles.cardSub}>
+                  {folderName
+                    ? t("Salva em \"{f}\" e substitui o backup anterior", { f: folderName })
+                    : t("Na primeira vez escolha a pasta; depois o backup é salvo nela, substituindo o anterior")}
+                </Text>
+              </View>
+            </Pressable>
+            {folderName ? (
+              <Pressable onPress={() => doSaveFolder(true)} disabled={!!busy} hitSlop={8} style={styles.changeFolder}>
+                <Text style={styles.changeFolderText}>{t("Trocar pasta")}</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
+
         <Pressable style={styles.card} onPress={doExport} disabled={!!busy} testID="backup-export">
           <View style={styles.cardIcon}>
             {busy === "export" ? (
@@ -180,8 +234,8 @@ export default function BackupScreen() {
             )}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.cardTitle}>{t("Fazer backup")}</Text>
-            <Text style={styles.cardSub}>{t("Cria um arquivo com todos os dados e fotos e abre as opções para guardar ou enviar")}</Text>
+            <Text style={styles.cardTitle}>{t("Enviar backup")}</Text>
+            <Text style={styles.cardSub}>{t("Cria um arquivo com todos os dados e fotos e abre as opções para guardar ou enviar (Drive, WhatsApp, e-mail)")}</Text>
           </View>
         </Pressable>
 
@@ -303,6 +357,8 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: "center",
     backgroundColor: colors.brandPrimary,
   },
+  changeFolder: { alignSelf: "flex-end", marginTop: 6, marginBottom: 4 },
+  changeFolderText: { fontFamily: fonts.body, fontSize: 13, color: colors.brandPrimary, textDecorationLine: "underline" },
   cardTitle: { fontFamily: fonts.displayBold, fontSize: 18, color: colors.onSurface },
   cardSub: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.muted, marginTop: 2 },
   legacy: {

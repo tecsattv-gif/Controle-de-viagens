@@ -6,6 +6,14 @@ import type { LangCode } from "./index";
 type Table = Record<string, string>;
 
 const es: Table = {
+  "Backup salvo": "Copia guardada",
+  "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Copia guardada en la carpeta \"{f}\" ({r} registro(s), {p} foto(s)). La copia anterior fue reemplazada.",
+  "Fazer backup na pasta": "Hacer copia en la carpeta",
+  "Salva em \"{f}\" e substitui o backup anterior": "Guarda en \"{f}\" y reemplaza la copia anterior",
+  "Na primeira vez escolha a pasta; depois o backup é salvo nela, substituindo o anterior": "La primera vez elija la carpeta; después la copia se guarda en ella, reemplazando la anterior",
+  "Trocar pasta": "Cambiar carpeta",
+  "Enviar backup": "Enviar copia",
+  "Cria um arquivo com todos os dados e fotos e abre as opções para guardar ou enviar (Drive, WhatsApp, e-mail)": "Crea un archivo con todos los datos y fotos y abre las opciones para guardar o enviar (Drive, WhatsApp, e-mail)",
   "Apagar coordenadas": "Borrar coordenadas",
   "Apagar as coordenadas deste local?": "¿Borrar las coordenadas de este lugar?",
   "Permita o acesso à localização para gravar as coordenadas.": "Permita el acceso a la ubicación para guardar las coordenadas.",
@@ -1177,6 +1185,14 @@ const es: Table = {
 };
 
 const en: Table = {
+  "Backup salvo": "Backup saved",
+  "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Backup saved in the folder \"{f}\" ({r} record(s), {p} photo(s)). The previous backup was replaced.",
+  "Fazer backup na pasta": "Back up to folder",
+  "Salva em \"{f}\" e substitui o backup anterior": "Saves in \"{f}\" and replaces the previous backup",
+  "Na primeira vez escolha a pasta; depois o backup é salvo nela, substituindo o anterior": "The first time, choose the folder; after that the backup is saved there, replacing the previous one",
+  "Trocar pasta": "Change folder",
+  "Enviar backup": "Send backup",
+  "Cria um arquivo com todos os dados e fotos e abre as opções para guardar ou enviar (Drive, WhatsApp, e-mail)": "Creates a file with all data and photos and opens the options to save or send (Drive, WhatsApp, e-mail)",
   "Apagar coordenadas": "Delete coordinates",
   "Apagar as coordenadas deste local?": "Delete the coordinates of this place?",
   "Permita o acesso à localização para gravar as coordenadas.": "Allow location access to save the coordinates.",
@@ -2338,6 +2354,14 @@ const en: Table = {
 };
 
 const fr: Table = {
+  "Backup salvo": "Sauvegarde enregistrée",
+  "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Sauvegarde enregistrée dans le dossier \"{f}\" ({r} enregistrement(s), {p} photo(s)). La sauvegarde précédente a été remplacée.",
+  "Fazer backup na pasta": "Sauvegarder dans le dossier",
+  "Salva em \"{f}\" e substitui o backup anterior": "Enregistre dans \"{f}\" et remplace la sauvegarde précédente",
+  "Na primeira vez escolha a pasta; depois o backup é salvo nela, substituindo o anterior": "La première fois, choisissez le dossier ; ensuite la sauvegarde y est enregistrée en remplaçant la précédente",
+  "Trocar pasta": "Changer de dossier",
+  "Enviar backup": "Envoyer la sauvegarde",
+  "Cria um arquivo com todos os dados e fotos e abre as opções para guardar ou enviar (Drive, WhatsApp, e-mail)": "Crée un fichier avec toutes les données et photos et ouvre les options pour enregistrer ou envoyer (Drive, WhatsApp, e-mail)",
   "Apagar coordenadas": "Supprimer les coordonnées",
   "Apagar as coordenadas deste local?": "Supprimer les coordonnées de ce lieu ?",
   "Permita o acesso à localização para gravar as coordenadas.": "Autorisez l'accès à la localisation pour enregistrer les coordonnées.",
