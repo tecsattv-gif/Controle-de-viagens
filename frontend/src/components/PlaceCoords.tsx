@@ -108,7 +108,8 @@ export function CoordsRow({ coords, locating, error, onRefresh, onClear, testID 
           <Trash size={18} color={colors.error} weight="bold" />
         </Pressable>
       ) : null}
-      {Platform.OS !== "web" && !locating ? (
+      {/* Setinha ↻ só aparece quando não há coordenadas (ex.: depois de apagar na lixeira). */}
+      {Platform.OS !== "web" && !locating && !has ? (
         <Pressable onPress={onRefresh} hitSlop={10}>
           <ArrowClockwise size={18} color={colors.brandPrimary} weight="bold" />
         </Pressable>

@@ -399,7 +399,8 @@ export default function ControleDiarioFormScreen() {
                       <Trash size={18} color={colors.error} weight="bold" />
                     </Pressable>
                   ) : null}
-                  {Platform.OS !== "web" && !locating[i] ? (
+                  {/* Setinha ↻ só aparece quando a parada está sem coordenadas (ex.: depois de apagar). */}
+                  {Platform.OS !== "web" && !locating[i] && !(stop.lat && stop.lng) ? (
                     <Pressable onPress={() => fillStopLocation(i)} hitSlop={10} testID={`cd-stop-gps-${i}`}>
                       <ArrowClockwise size={18} color={colors.brandPrimary} weight="bold" />
                     </Pressable>
