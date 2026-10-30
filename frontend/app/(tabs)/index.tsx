@@ -258,7 +258,6 @@ export default function ResumoScreen() {
       monthKm += t.km;
       tripsThisMonth += 1;
     }
-    if (t.date === day) todayKm += t.km;
   }
 
   // "Distância total registrada" = sempre o total de todos os meses:
@@ -281,9 +280,21 @@ export default function ResumoScreen() {
     if (max > min) totalKm = Math.max(totalKm, max - min);
   }
 
-  // Soma o KM do dia dos controles diários do dia selecionado.
+  // "KM de [dia]" = KM rodado SÓ naquele dia, vindo do controle diário
+  // (KM final − KM inicial). Viagens de vários dias NÃO entram aqui, senão o
+  // KM da viagem inteira caía no dia em que ela começou. Uma viagem só conta
+  // se começar e terminar no mesmo dia e não houver controle diário do dia.
+  let hasDailyForDay = false;
   for (const d of dailyLogData ?? []) {
-    if (d.date === day) todayKm += dailyKm(d);
+    if (d.date === day) {
+      hasDailyForDay = true;
+      todayKm += dailyKm(d);
+    }
+  }
+  if (!hasDailyForDay) {
+    for (const tr of trips) {
+      if (tr.date === day && (!tr.end_date || tr.end_date === day)) todayKm += tr.km;
+    }
   }
 
   // Controle Mensal de KM: quando existe um registro para o MÊS SELECIONADO,

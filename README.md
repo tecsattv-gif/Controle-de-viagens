@@ -23,6 +23,12 @@ Em cada linha: tocar nas coordenadas abre o Google Maps e 🗑 apaga (com confir
 
 Nos relatórios PDF por período, o separador **•** entre itens sai maior e em negrito.
 
+## KM no Resumo
+- **KM de [dia]** (cartão com setas): KM rodado só naquele dia, pelo controle diário (KM final − KM inicial). Viagens de vários dias não entram nesse cartão — antes o KM da viagem inteira caía no dia em que ela começou (ex.: 3.025 km num dia). Uma viagem só conta ali se começar e terminar no mesmo dia e não houver controle diário desse dia.
+- **KM rodados no mês** e **Distância total registrada** continuam como antes.
+
+Código: cálculo de `todayKm` em `frontend/app/(tabs)/index.tsx`.
+
 ## Backup no telefone (Android)
 Em Cadastros → Backup e restauração:
 - **Salvar backup no telefone**: na primeira vez o app pede para escolher uma pasta do telefone (ex.: Download ou Documentos). Depois, cada backup é gravado nela como `controle-viagens-backup.json`, **apagando o backup anterior** (inclusive os antigos com data no nome), para não acumular arquivos. **Trocar pasta** escolhe outra.
