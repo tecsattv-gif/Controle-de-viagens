@@ -194,7 +194,7 @@ export default function BackupScreen() {
         <View style={styles.info}>
           <ShieldCheck size={22} color={colors.brandPrimary} weight="fill" />
           <Text style={styles.infoText}>
-            {t("Os seus dados ficam guardados só neste telefone. Faça um backup de vez em quando e guarde o arquivo no Google Drive, e-mail ou WhatsApp. Se trocar ou perder o telefone, é com ele que recupera tudo.")}
+            {t("Os seus dados ficam guardados só neste telefone. Faça um backup de vez em quando: salve no telefone (substitui o anterior) e, se quiser, envie também para o Google Drive, e-mail ou WhatsApp. Se trocar ou perder o telefone, é com ele que recupera tudo.")}
           </Text>
         </View>
 
@@ -209,11 +209,11 @@ export default function BackupScreen() {
                 )}
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.cardTitle}>{t("Fazer backup na pasta")}</Text>
+                <Text style={styles.cardTitle}>{t("Salvar backup no telefone")}</Text>
                 <Text style={styles.cardSub}>
                   {folderName
-                    ? t("Salva em \"{f}\" e substitui o backup anterior", { f: folderName })
-                    : t("Na primeira vez escolha a pasta; depois o backup é salvo nela, substituindo o anterior")}
+                    ? t("Salva na pasta \"{f}\" do telefone e substitui o backup anterior", { f: folderName })
+                    : t("Na primeira vez escolha uma pasta do telefone (ex.: Download); depois o backup é salvo nela, sempre substituindo o anterior")}
                 </Text>
               </View>
             </Pressable>
@@ -235,7 +235,7 @@ export default function BackupScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.cardTitle}>{t("Enviar backup")}</Text>
-            <Text style={styles.cardSub}>{t("Cria um arquivo com todos os dados e fotos e abre as opções para guardar ou enviar (Drive, WhatsApp, e-mail)")}</Text>
+            <Text style={styles.cardSub}>{t("Abre as opções para mandar o arquivo ao Drive, WhatsApp ou e-mail. O Google Drive guarda uma cópia nova a cada envio: apague as antigas lá no Drive.")}</Text>
           </View>
         </Pressable>
 
