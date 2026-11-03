@@ -71,6 +71,7 @@ const TRIP = {
   freight_paid: FLOAT, freight_paid_currency: "EUR", freight_payment_date: "", freight_status: "Não informado",
   freight_diesel: FLOAT, freight_diesel_currency: "EUR", freight_arla: FLOAT, freight_arla_currency: "EUR",
   tolls: [TOLL], vehicle_id: "", vehicle_label: "", driver_id: "", driver_name: "", driver_license: "",
+  closed: false,
 } satisfies Record<string, FieldSpec>;
 
 const REFUELING = {

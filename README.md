@@ -23,6 +23,11 @@ Em cada linha: tocar nas coordenadas abre o Google Maps e 🗑 apaga (com confir
 
 Nos relatórios PDF por período, o separador **•** entre itens sai maior e em negrito.
 
+## Fechar viagem em aberto
+Ao fechar uma viagem em aberto, **só a data final é obrigatória**. **KM final** e **Local de descarga** são opcionais, porque a viagem pode ser aberta num lugar e fechada em outro. A viagem fechada pelo botão **Fechar viagem** fica marcada como fechada (campo `closed`) e não volta a aparecer como "em aberto", mesmo sem KM final nem descarga. Editar uma viagem fechada não a reabre.
+
+Código: `handleSave`/`doSave` em `frontend/app/editar-viagem.tsx` e `findOpenTrip` em `frontend/src/api/trips.ts`.
+
 ## KM no Resumo
 - **KM de [dia]** (cartão com setas): KM rodado só naquele dia, pelo controle diário (KM final − KM inicial). Viagens de vários dias não entram nesse cartão — antes o KM da viagem inteira caía no dia em que ela começou (ex.: 3.025 km num dia). Uma viagem só conta ali se começar e terminar no mesmo dia e não houver controle diário desse dia.
 - **KM rodados no mês** e **Distância total registrada** continuam como antes.

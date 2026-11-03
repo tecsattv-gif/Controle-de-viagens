@@ -44,6 +44,8 @@ export type Trip = {
   driver_id: string;
   driver_name: string;
   driver_license: string;
+  // Fechada pelo botão "Fechar viagem" (KM final e descarga são opcionais).
+  closed?: boolean;
   created_at: string;
 };
 
@@ -81,6 +83,7 @@ export type TripInput = {
   driver_id: string;
   driver_name: string;
   driver_license: string;
+  closed?: boolean;
 };
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -134,7 +137,8 @@ export function useDeleteTrip() {
 }
 
 // Viagem em aberto = a ÚLTIMA viagem cadastrada ainda sem local de descarga
-// E sem KM final (mesma regra do Controle Diário).
+// E sem KM final (mesma regra do Controle Diário), e que não foi fechada pelo
+// botão "Fechar viagem" (KM final e descarga são opcionais ao fechar).
 export function findOpenTrip(trips?: Trip[]): Trip | undefined {
   if (!trips || trips.length === 0) return undefined;
   const last = [...trips].sort((x, y) =>
@@ -142,5 +146,5 @@ export function findOpenTrip(trips?: Trip[]): Trip | undefined {
   )[0];
   const noKm = !last?.km_end || last.km_end === 0;
   const noPlace = !last?.unloading_place || last.unloading_place.trim() === "";
-  return last && noKm && noPlace ? last : undefined;
+  return last && !last.closed && noKm && noPlace ? last : undefined;
 }

@@ -107,6 +107,8 @@ export default function EditarViagemScreen() {
           end_date: endISO,
           km_start: a,
           km_end: isNaN(b) ? 0 : b,
+          // Fechada pelo botão "Fechar viagem" (mesmo sem KM final/descarga).
+          closed: closing || !!existing?.closed,
           start_time: existing?.start_time || "",
           end_time: existing?.end_time || "",
           loading_place: loading.trim(),
@@ -152,10 +154,8 @@ export default function EditarViagemScreen() {
     if (toISODate(endDate) < toISODate(date)) {
       next.endDate = t("A data final não pode ser anterior à data de carregamento");
     }
-    if (closing) {
-      if (!kmEnd.trim()) next.kmEnd = t("Informe o KM final para fechar a viagem");
-      if (!unload.trim()) next.unloading = t("Informe o local de descarga");
-    }
+    // Ao fechar, KM final e local de descarga são opcionais: a viagem pode ser
+    // aberta num lugar e fechada em outro (fica marcada como fechada).
     if (Object.keys(next).length > 0) {
       setErrors(next);
       setBanner(t("Verifique os campos destacados."));
@@ -210,7 +210,7 @@ export default function EditarViagemScreen() {
               <View style={styles.infoBanner} testID="closing-banner">
                 <FlagCheckered size={18} color={colors.brandPrimary} weight="bold" />
                 <Text style={styles.bannerText}>
-                  {t("Você tem uma viagem em aberto. Informe a data final, o KM final e o local de descarga para fechá-la antes de cadastrar uma nova.")}
+                  {t("Você tem uma viagem em aberto. Informe a data final para fechá-la antes de cadastrar uma nova. KM final e local de descarga são opcionais.")}
                 </Text>
               </View>
             ) : null}
