@@ -15,7 +15,7 @@ const API =
   "https://api.github.com/repos/tecsattv-gif/Controle-de-viagens/releases/latest";
 const CHECK_EVERY_MS = 6 * 60 * 60 * 1000; // no máximo a cada 6 h
 
-type UpdateInfo = { build: number; url: string; size: number };
+type UpdateInfo = { build: number; version: string; url: string; size: number };
 
 /** Número do build instalado (gravado pelo GitHub em app.json → extra). */
 export function installedBuild(): number {
@@ -23,15 +23,9 @@ export function installedBuild(): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-/** Versão de um build: 1.1 + número do build → "1.1.36". */
-export function versionOf(build: number): string {
-  const base = (Constants.expoConfig?.version || "1.1.0").split(".").slice(0, 2).join(".");
-  return build > 0 ? `${base}.${build}` : Constants.expoConfig?.version || "1.1.0";
-}
-
-/** Versão instalada, ex.: "1.1.36" — muda sozinha a cada atualização. */
+/** Versão do app (app.json → version), ex.: "1.2.0". Sobe a cada mudança. */
 export function appVersion(): string {
-  return versionOf(installedBuild());
+  return Constants.expoConfig?.version || "1.1.0";
 }
 
 async function latest(): Promise<UpdateInfo | null> {
@@ -41,7 +35,9 @@ async function latest(): Promise<UpdateInfo | null> {
   const m = /(\d+)/.exec(String(j?.tag_name ?? ""));
   const apk = (j?.assets ?? []).find((a: any) => String(a?.name).endsWith(".apk"));
   if (!m || !apk) return null;
-  return { build: Number(m[1]), url: apk.browser_download_url, size: apk.size ?? 0 };
+  // A versão vem no título da Release ("Controle de Viagens 1.2.0").
+  const v = /(\d+\.\d+\.\d+)/.exec(String(j?.name ?? ""));
+  return { build: Number(m[1]), version: v ? v[1] : "", url: apk.browser_download_url, size: apk.size ?? 0 };
 }
 
 // Pequeno arquivo com a hora da última verificação e a versão recusada.
@@ -88,7 +84,7 @@ async function install(info: UpdateInfo) {
 function ask(info: UpdateInfo, onLater?: () => void) {
   Alert.alert(
     "Nova versão do Controle de Viagens",
-    `Há uma versão nova (${versionOf(info.build)}; você tem a ${appVersion()}).\n\n` +
+    (info.version ? `Há uma versão nova (${info.version}; você tem a ${appVersion()}).\n\n` : "Há uma versão nova do app.\n\n") +
       "Quer baixar e instalar agora? Seus dados continuam no telefone.",
     [
       { text: "Agora não", style: "cancel", onPress: onLater },
