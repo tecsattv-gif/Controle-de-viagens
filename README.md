@@ -26,6 +26,12 @@ Nos relatórios PDF por período, o separador **•** entre itens sai maior e em
 ## Fechar viagem em aberto
 Ao fechar uma viagem em aberto, **só a data final é obrigatória**. **KM final** e **Local de descarga** são opcionais, porque a viagem pode ser aberta num lugar e fechada em outro. A viagem fechada pelo botão **Fechar viagem** fica marcada como fechada (campo `closed`) e não volta a aparecer como "em aberto", mesmo sem KM final nem descarga. Editar uma viagem fechada não a reabre.
 
+Na tela **Fechar viagem em aberto** há dois botões:
+- **Salvar** — grava as alterações (observações, carregamento, veículo etc.) e a viagem **continua em aberto**.
+- **Fechar viagem** — grava e encerra a viagem.
+
+A barra de botões respeita a área das teclas de navegação do Android (não fica por baixo delas).
+
 Código: `handleSave`/`doSave` em `frontend/app/editar-viagem.tsx` e `findOpenTrip` em `frontend/src/api/trips.ts`.
 
 ## KM no Resumo

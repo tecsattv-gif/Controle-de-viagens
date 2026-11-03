@@ -94,7 +94,9 @@ export default function EditarViagemScreen() {
   const kmError =
     bothValid && b < a ? "O KM final deve ser igual ou superior ao KM inicial" : undefined;
 
-  const doSave = () => {
+  // close=true: fecha a viagem; close=false: só grava as alterações e a
+  // viagem continua em aberto (dá para salvar sem fechar).
+  const doSave = (close: boolean) => {
     const vehicle = (vehicles ?? []).find((v) => v.id === vehicleId);
     const driver = (drivers ?? []).find((d) => d.id === driverId);
     const dateISO = toISODate(date);
@@ -108,7 +110,7 @@ export default function EditarViagemScreen() {
           km_start: a,
           km_end: isNaN(b) ? 0 : b,
           // Fechada pelo botão "Fechar viagem" (mesmo sem KM final/descarga).
-          closed: closing || !!existing?.closed,
+          closed: close || !!existing?.closed,
           start_time: existing?.start_time || "",
           end_time: existing?.end_time || "",
           loading_place: loading.trim(),
@@ -144,7 +146,7 @@ export default function EditarViagemScreen() {
     );
   };
 
-  const handleSave = () => {
+  const handleSave = (close: boolean) => {
     const next: Record<string, string> = {};
     if (!kmStart.trim()) next.kmStart = t("Informe o KM inicial");
     if (!loading.trim()) next.loading = t("Informe o local de carregamento");
@@ -165,15 +167,19 @@ export default function EditarViagemScreen() {
     setBanner(null);
 
     if (Platform.OS === "web") {
-      doSave();
+      doSave(close);
       return;
     }
     Alert.alert(
-      closing ? t("Fechar viagem") : t("Salvar alterações"),
-      closing ? t("Deseja fechar esta viagem?") : t("Deseja salvar as alterações desta viagem?"),
+      close ? t("Fechar viagem") : t("Salvar alterações"),
+      close
+        ? t("Deseja fechar esta viagem?")
+        : closing
+          ? t("Salvar as alterações? A viagem continua em aberto.")
+          : t("Deseja salvar as alterações desta viagem?"),
       [
       { text: t("Cancelar"), style: "cancel" },
-      { text: closing ? t("Fechar") : t("Salvar"), onPress: doSave },
+      { text: close ? t("Fechar") : t("Salvar"), onPress: () => doSave(close) },
     ]);
   };
 
@@ -210,7 +216,7 @@ export default function EditarViagemScreen() {
               <View style={styles.infoBanner} testID="closing-banner">
                 <FlagCheckered size={18} color={colors.brandPrimary} weight="bold" />
                 <Text style={styles.bannerText}>
-                  {t("Você tem uma viagem em aberto. Informe a data final para fechá-la antes de cadastrar uma nova. KM final e local de descarga são opcionais.")}
+                  {t("Você tem uma viagem em aberto. Use Salvar para gravar as alterações e manter a viagem aberta, ou Fechar viagem para encerrá-la. KM final e local de descarga são opcionais.")}
                 </Text>
               </View>
             ) : null}
@@ -272,17 +278,29 @@ export default function EditarViagemScreen() {
           </KeyboardAwareScrollView>
 
           <KeyboardStickyView>
-            <View style={styles.saveBar}>
-              <Pressable style={[styles.saveBtn, updateTrip.isPending && styles.saveBtnDisabled]} onPress={handleSave} disabled={updateTrip.isPending} testID="save-edit-trip-button">
-                {updateTrip.isPending ? (
-                  <ActivityIndicator color={colors.onBrandPrimary} />
-                ) : (
-                  <>
-                    <FloppyDisk size={22} color={colors.onBrandPrimary} weight="bold" />
-                    <Text style={styles.saveText}>{closing ? t("Fechar viagem") : t("Salvar alterações")}</Text>
-                  </>
-                )}
-              </Pressable>
+            <View style={[styles.saveBar, { paddingBottom: 14 + insets.bottom }]}>
+              <View style={styles.btnRow}>
+                {closing ? (
+                  <Pressable style={[styles.secondaryBtn, updateTrip.isPending && styles.saveBtnDisabled]} onPress={() => handleSave(false)} disabled={updateTrip.isPending} testID="save-open-trip-button">
+                    <FloppyDisk size={20} color={colors.brandPrimary} weight="bold" />
+                    <Text style={styles.secondaryText}>{t("Salvar")}</Text>
+                  </Pressable>
+                ) : null}
+                <Pressable style={[styles.saveBtn, { flex: 1 }, updateTrip.isPending && styles.saveBtnDisabled]} onPress={() => handleSave(closing)} disabled={updateTrip.isPending} testID="save-edit-trip-button">
+                  {updateTrip.isPending ? (
+                    <ActivityIndicator color={colors.onBrandPrimary} />
+                  ) : (
+                    <>
+                      {closing ? (
+                        <FlagCheckered size={22} color={colors.onBrandPrimary} weight="bold" />
+                      ) : (
+                        <FloppyDisk size={22} color={colors.onBrandPrimary} weight="bold" />
+                      )}
+                      <Text style={styles.saveText}>{closing ? t("Fechar viagem") : t("Salvar alterações")}</Text>
+                    </>
+                  )}
+                </Pressable>
+              </View>
             </View>
           </KeyboardStickyView>
         </>
@@ -422,5 +440,19 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.brandPrimary,
   },
   saveBtnDisabled: { opacity: 0.6 },
+  btnRow: { flexDirection: "row", gap: 10 },
+  secondaryBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    height: 54,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.brandPrimary,
+    backgroundColor: colors.surface,
+  },
+  secondaryText: { fontFamily: fonts.displayBold, fontSize: 18, letterSpacing: 0.5, color: colors.brandPrimary },
   saveText: { fontFamily: fonts.displayBold, fontSize: 20, letterSpacing: 0.5, color: colors.onBrandPrimary },
 }));
