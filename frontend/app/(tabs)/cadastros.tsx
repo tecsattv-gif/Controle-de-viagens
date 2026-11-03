@@ -31,7 +31,7 @@ import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR } from "@/src/utils/format";
 import { fileUrl } from "@/src/utils/upload";
 import { ArrowsClockwise, CloudArrowUp, SparkleIcon } from "phosphor-react-native";
-import { appVersion, checkForUpdateManual, installedBuild } from "@/src/components/UpdateChecker";
+import { appVersion, checkForUpdateManual } from "@/src/components/UpdateChecker";
 
 type Tab = "vehicles" | "drivers";
 
@@ -187,7 +187,7 @@ export default function CadastrosScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.coresTitle}>{t("Procurar atualização do app")}</Text>
-              <Text style={styles.coresSub}>{`${t("Versão instalada")}: build ${installedBuild()}`}</Text>
+              <Text style={styles.coresSub}>{`${t("Versão instalada")}: ${appVersion()}`}</Text>
             </View>
           </Pressable>
         ) : null}

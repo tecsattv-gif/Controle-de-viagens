@@ -23,11 +23,15 @@ export function installedBuild(): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-/** Versão mostrada no app, ex.: "1.1.0 (build 35)" — muda a cada atualização. */
+/** Versão de um build: 1.1 + número do build → "1.1.36". */
+export function versionOf(build: number): string {
+  const base = (Constants.expoConfig?.version || "1.1.0").split(".").slice(0, 2).join(".");
+  return build > 0 ? `${base}.${build}` : Constants.expoConfig?.version || "1.1.0";
+}
+
+/** Versão instalada, ex.: "1.1.36" — muda sozinha a cada atualização. */
 export function appVersion(): string {
-  const v = Constants.expoConfig?.version || "1.1.0";
-  const b = installedBuild();
-  return b > 0 ? `${v} (build ${b})` : v;
+  return versionOf(installedBuild());
 }
 
 async function latest(): Promise<UpdateInfo | null> {
@@ -84,7 +88,7 @@ async function install(info: UpdateInfo) {
 function ask(info: UpdateInfo, onLater?: () => void) {
   Alert.alert(
     "Nova versão do Controle de Viagens",
-    `Há uma versão nova (build ${info.build}; você tem o ${installedBuild()}).\n\n` +
+    `Há uma versão nova (${versionOf(info.build)}; você tem a ${appVersion()}).\n\n` +
       "Quer baixar e instalar agora? Seus dados continuam no telefone.",
     [
       { text: "Agora não", style: "cancel", onPress: onLater },
@@ -99,7 +103,7 @@ export async function checkForUpdateManual() {
   try {
     const info = await latest();
     if (!info || info.build <= installedBuild()) {
-      Alert.alert("Atualização", `Você já está na versão mais nova (build ${installedBuild()}).`);
+      Alert.alert("Atualização", `Você já está na versão mais nova (${appVersion()}).`);
       return;
     }
     ask(info);

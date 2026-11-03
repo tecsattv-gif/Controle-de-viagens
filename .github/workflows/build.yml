@@ -55,6 +55,8 @@ jobs:
             const n = Number(process.env.GITHUB_RUN_NUMBER || 0);
             app.expo.extra.buildNumber = n;
             app.expo.android.versionCode = n;
+            // Versão 1.1.<build> (aparece também nas configurações do Android).
+            app.expo.version = app.expo.version.split(".").slice(0, 2).join(".") + "." + n;
             fs.writeFileSync("app.json", JSON.stringify(app, null, 2));
           '
 
@@ -86,5 +88,5 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release.apk ControleViagens-teste.apk
           TAG="build-${GITHUB_RUN_NUMBER}"
           gh release create "$TAG" ControleViagens-teste.apk \
-            --repo "$GITHUB_REPOSITORY" --title "Controle de Viagens (teste) build ${GITHUB_RUN_NUMBER}" \
+            --repo "$GITHUB_REPOSITORY" --title "Controle de Viagens (teste) 1.1.${GITHUB_RUN_NUMBER}" \
             --notes "APK de teste. Veja as novidades no README." --latest
