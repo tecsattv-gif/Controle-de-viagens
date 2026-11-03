@@ -42,7 +42,15 @@ Em Cadastros → Backup e restauração:
 
 Código: `saveBackupToFolder` em `frontend/src/local/backup.ts` (a pasta fica salva com a chave `backup_folder_uri_v1`).
 
+## Atualização pelo próprio app
+Cada build do GitHub publica o APK numa **Release** (`build-<número>`; o número também vai para o app em `extra.buildNumber` e no `versionCode`). Ao abrir o app (no máximo a cada 6 h) ele pergunta ao GitHub qual é o último build; se houver um mais novo aparece **"Nova versão do Controle de Viagens — Atualizar / Agora não"**. **Atualizar** baixa o APK e abre o instalador do Android (na 1ª vez o Android pede para liberar **Instalar apps desconhecidos**). "Agora não" não pergunta de novo pelo mesmo build. Em **Cadastros → Procurar atualização do app** dá para verificar na hora e ver o build instalado. Os dados ficam no telefone e continuam depois da atualização.
+
+O primeiro APK com essa função precisa ser instalado à mão (Releases ou Actions).
+
+Código: `frontend/src/components/UpdateChecker.tsx` (usa `expo-intent-launcher` e a permissão `REQUEST_INSTALL_PACKAGES`).
+
 ## APK de teste
+Também fica em **Releases** (o mais novo é o "Latest").
 O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` um APK de teste ("Viagens TESTE", pacote `.teste`), que instala ao lado do app oficial. Baixe em **Actions → artefato `controle-viagens-teste-apk`**.
 
 ## ⚠️ Antes de publicar

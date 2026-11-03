@@ -14,6 +14,7 @@ import { MigrationGate } from "@/src/components/MigrationGate";
 import { SecurityGate } from "@/src/components/SecurityGate";
 import { StartOnResumo } from "@/src/components/StartOnResumo";
 import { TabletFrame } from "@/src/components/TabletFrame";
+import { UpdateChecker } from "@/src/components/UpdateChecker";
 import { ErrorBoundary } from "@/src/components/error-boundary";
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
 import { UndoDeleteProvider } from "@/src/context/UndoDelete";
@@ -88,6 +89,7 @@ export default function RootLayout() {
                       <Stack screenOptions={{ headerShown: false }} />
                     </TabletFrame>
                     <StartOnResumo />
+                    <UpdateChecker />
                   </UndoDeleteProvider>
                 </AuthGate>
               </AuthProvider>

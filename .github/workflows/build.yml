@@ -15,6 +15,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write   # publicar a Release que o app usa para se atualizar
     env:
       # Chave do Gemini que vem embutida no app (segredo do repositório).
       EXPO_PUBLIC_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -48,6 +50,11 @@ jobs:
             // Esquema próprio: senão o retorno do login Google abre o app oficial.
             app.expo.scheme = "frontendteste";
             delete app.expo.extra.eas;
+            // Número do build: o app compara com a última Release para
+            // saber se há atualização (Cadastros → Procurar atualização).
+            const n = Number(process.env.GITHUB_RUN_NUMBER || 0);
+            app.expo.extra.buildNumber = n;
+            app.expo.android.versionCode = n;
             fs.writeFileSync("app.json", JSON.stringify(app, null, 2));
           '
 
@@ -69,3 +76,15 @@ jobs:
         with:
           name: controle-viagens-teste-apk
           path: frontend/android/app/build/outputs/apk/release/app-release.apk
+
+      # Publica o APK numa Release (build-<número>). O app procura a última
+      # Release para avisar que há atualização e instalar com 1 toque.
+      - name: Publicar Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk ControleViagens-teste.apk
+          TAG="build-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" ControleViagens-teste.apk \
+            --repo "$GITHUB_REPOSITORY" --title "Controle de Viagens (teste) build ${GITHUB_RUN_NUMBER}" \
+            --notes "APK de teste. Veja as novidades no README." --latest

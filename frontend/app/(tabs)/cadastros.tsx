@@ -30,7 +30,8 @@ import { LANGUAGES, useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR } from "@/src/utils/format";
 import { fileUrl } from "@/src/utils/upload";
-import { CloudArrowUp, SparkleIcon } from "phosphor-react-native";
+import { ArrowsClockwise, CloudArrowUp, SparkleIcon } from "phosphor-react-native";
+import { checkForUpdateManual, installedBuild } from "@/src/components/UpdateChecker";
 
 type Tab = "vehicles" | "drivers";
 
@@ -173,6 +174,23 @@ export default function CadastrosScreen() {
             <Text style={styles.coresSub}>{t("Salve uma cópia dos seus dados ou restaure de um arquivo")}</Text>
           </View>
         </Pressable>
+
+        {Platform.OS === "android" ? (
+          <Pressable
+            style={styles.coresRow}
+            onPress={() => checkForUpdateManual()}
+            testID="cadastros-update"
+            accessibilityRole="button"
+          >
+            <View style={styles.coresIcon}>
+              <ArrowsClockwise size={24} color={colors.brandPrimary} weight="bold" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.coresTitle}>{t("Procurar atualização do app")}</Text>
+              <Text style={styles.coresSub}>{`${t("Versão instalada")}: build ${installedBuild()}`}</Text>
+            </View>
+          </Pressable>
+        ) : null}
 
         <Pressable
           style={styles.coresRow}
