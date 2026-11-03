@@ -31,7 +31,7 @@ import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR } from "@/src/utils/format";
 import { fileUrl } from "@/src/utils/upload";
 import { ArrowsClockwise, CloudArrowUp, SparkleIcon } from "phosphor-react-native";
-import { checkForUpdateManual, installedBuild } from "@/src/components/UpdateChecker";
+import { appVersion, checkForUpdateManual, installedBuild } from "@/src/components/UpdateChecker";
 
 type Tab = "vehicles" | "drivers";
 
@@ -219,7 +219,7 @@ export default function CadastrosScreen() {
           >
             <Text style={styles.aboutEmail}>E-mail: tecsattv@gmail.com</Text>
           </Pressable>
-          <Text style={styles.aboutLine}>{t("Versão: 1.1.0")}</Text>
+          <Text style={styles.aboutLine}>{t("Versão: {v}", { v: appVersion() })}</Text>
 
         </View>
       </ScrollView>

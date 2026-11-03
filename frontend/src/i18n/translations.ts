@@ -528,7 +528,7 @@ const es: Table = {
   "Nenhum motorista cadastrado. Toque em “Novo” para adicionar.":
     "Ningún conductor registrado. Toca “Nuevo” para agregar.",
   "Sobre o aplicativo": "Acerca de la aplicación",
-  "Versão: 1.1.0": "Versión: 1.1.0",
+  "Versão: {v}": "Versión: {v}",
   "Conectado como {who}": "Conectado como {who}",
   "Sair da conta": "Cerrar sesión",
   Motorista: "Conductor",
@@ -1705,7 +1705,7 @@ const en: Table = {
   "Nenhum motorista cadastrado. Toque em “Novo” para adicionar.":
     "No driver registered. Tap “New” to add one.",
   "Sobre o aplicativo": "About the app",
-  "Versão: 1.1.0": "Version: 1.1.0",
+  "Versão: {v}": "Version: {v}",
   "Conectado como {who}": "Signed in as {who}",
   "Sair da conta": "Sign out",
   Motorista: "Driver",
@@ -2880,7 +2880,7 @@ const fr: Table = {
   "Nenhum motorista cadastrado. Toque em “Novo” para adicionar.":
     "Aucun conducteur enregistré. Appuyez sur « Nouveau » pour ajouter.",
   "Sobre o aplicativo": "À propos de l'application",
-  "Versão: 1.1.0": "Version : 1.1.0",
+  "Versão: {v}": "Version : {v}",
   "Conectado como {who}": "Connecté en tant que {who}",
   "Sair da conta": "Se déconnecter",
   Motorista: "Conducteur",

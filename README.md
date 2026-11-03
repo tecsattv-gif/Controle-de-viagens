@@ -51,6 +51,8 @@ Código: `saveBackupToFolder` em `frontend/src/local/backup.ts` (a pasta fica sa
 ## Atualização pelo próprio app
 Cada build do GitHub publica o APK numa **Release** (`build-<número>`; o número também vai para o app em `extra.buildNumber` e no `versionCode`). Ao abrir o app (no máximo a cada 6 h) ele pergunta ao GitHub qual é o último build; se houver um mais novo aparece **"Nova versão do Controle de Viagens — Atualizar / Agora não"**. **Atualizar** baixa o APK e abre o instalador do Android (na 1ª vez o Android pede para liberar **Instalar apps desconhecidos**). "Agora não" não pergunta de novo pelo mesmo build. Em **Cadastros → Procurar atualização do app** dá para verificar na hora e ver o build instalado. Os dados ficam no telefone e continuam depois da atualização.
 
+A versão mostrada no app (abertura e **Cadastros → Sobre o aplicativo**) é automática: `versão do app.json (build <número>)`, ex.: **1.1.0 (build 36)**, e muda sozinha a cada atualização.
+
 **Importante:** o repositório precisa ser **público**. O app consulta o GitHub sem login; com o repositório privado ele não enxerga as Releases e sempre responde "você já está na versão mais nova".
 
 O primeiro APK com essa função precisa ser instalado à mão (Releases ou Actions).

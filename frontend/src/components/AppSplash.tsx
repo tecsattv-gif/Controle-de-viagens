@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Animated, Easing, Image, Text, View } from "react-native";
 
+import { appVersion } from "@/src/components/UpdateChecker";
 import { fonts, makeStyles } from "@/src/theme";
 
 const DURATION_MS = 2000;
@@ -60,7 +61,7 @@ export function AppSplash({ onFinish }: { onFinish: () => void }) {
           <Text style={styles.aboutApp}>Controle de Viagens</Text>
           <Text style={styles.aboutLine}>Desenvolvido por: Luiz Alberto Cardoso</Text>
           <Text style={styles.aboutLine}>E-mail: tecsattv@gmail.com</Text>
-          <Text style={styles.aboutLine}>Versão: 1.1.0</Text>
+          <Text style={styles.aboutLine}>{`Versão: ${appVersion()}`}</Text>
         </View>
       </Animated.View>
 

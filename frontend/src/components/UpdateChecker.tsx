@@ -23,6 +23,13 @@ export function installedBuild(): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Versão mostrada no app, ex.: "1.1.0 (build 35)" — muda a cada atualização. */
+export function appVersion(): string {
+  const v = Constants.expoConfig?.version || "1.1.0";
+  const b = installedBuild();
+  return b > 0 ? `${v} (build ${b})` : v;
+}
+
 async function latest(): Promise<UpdateInfo | null> {
   const r = await fetch(API, { headers: { Accept: "application/vnd.github+json" } });
   if (!r.ok) return null;
