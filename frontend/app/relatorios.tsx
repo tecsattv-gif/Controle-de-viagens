@@ -22,7 +22,7 @@ import { DateInputField } from "@/src/components/DateInputField";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { formatDateBR, formatDecimal, formatInt, money, toISODate } from "@/src/utils/format";
-import { computeFuelTotals, FuelTotals } from "@/src/utils/fuel";
+import { computeConsumption, computeFuelTotals, FuelTotals } from "@/src/utils/fuel";
 import { SwipeableRow } from "@/src/components/SwipeableRow";
 import { useReportHeader } from "@/src/utils/reportHeader";
 import { companyPdfHeaderHtml } from "@/src/utils/reportHeader";
@@ -351,8 +351,7 @@ export default function RelatoriosScreen() {
 
   const refuels = (refuelData ?? []).filter((r) => r.date >= startISO && r.date <= endISO);
   const ft = computeFuelTotals(refuels);
-  const media =
-    ft.dieselLiters > 0 ? (totalKm / ft.dieselLiters).toFixed(2).replace(".", ",") : "—";
+  const media = computeConsumption(refuels, totalKm);
 
   // Auto-detect single driver/vehicle from the trips in the period.
   const autoDriverId = useMemo(() => {

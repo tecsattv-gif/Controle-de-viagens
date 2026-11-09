@@ -19,7 +19,7 @@ import {
   monthKey,
   shiftMonth,
 } from "@/src/utils/format";
-import { computeFuelTotals } from "@/src/utils/fuel";
+import { computeConsumption, computeFuelTotals } from "@/src/utils/fuel";
 
 export default function DespesasAbastecimentoScreen() {
   const styles = useStyles();
@@ -44,8 +44,7 @@ export default function DespesasAbastecimentoScreen() {
   for (const t of trips) {
     if (monthKey(t.date) === mk) kmMonth += t.km;
   }
-  const media =
-    ft.dieselLiters > 0 ? (kmMonth / ft.dieselLiters).toFixed(2).replace(".", ",") : "—";
+  const media = computeConsumption(monthRefuels, kmMonth);
 
   const openForm = (id?: string) => {
     if (id) {

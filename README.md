@@ -23,6 +23,9 @@ Em cada linha: tocar nas coordenadas abre o Google Maps e 🗑 apaga (com confir
 
 Nos relatórios PDF por período, o separador **•** entre itens sai maior e em negrito.
 
+## Média de consumo (km/L)
+Calculada pelo **KM do Diesel** gravado em cada abastecimento (método do tanque cheio), em `frontend/src/utils/fuel.ts` (`computeConsumption`): km rodados = maior KM − menor KM dos abastecimentos do período/selecionados; litros = diesel de todos, **menos o primeiro** (esse diesel foi gasto antes). Vale para a tela Abastecimentos (mês), o Relatório de Abastecimentos (só os marcados) e o Relatório geral. Se houver menos de dois abastecimentos com KM, usa os km das viagens do período ÷ litros, como antes. Antes (até 1.2.0) a média dependia só dos km das viagens e ficava em 0,00 quando a viagem estava em aberto ou sem KM final.
+
 ## Fechar viagem em aberto
 Ao fechar uma viagem em aberto, **só a data final é obrigatória**. **KM final** e **Local de descarga** são opcionais, porque a viagem pode ser aberta num lugar e fechada em outro. A viagem fechada pelo botão **Fechar viagem** fica marcada como fechada (campo `closed`) e não volta a aparecer como "em aberto", mesmo sem KM final nem descarga. Editar uma viagem fechada não a reabre.
 

@@ -33,7 +33,7 @@ import {
   money,
   toISODate,
 } from "@/src/utils/format";
-import { computeFuelTotals, FuelTotals } from "@/src/utils/fuel";
+import { computeConsumption, computeFuelTotals, FuelTotals } from "@/src/utils/fuel";
 import { confirmDelete as confirmDeleteHelper } from "@/src/utils/confirmDelete";
 import { useUndoableDelete } from "@/src/context/UndoDelete";
 import { useReportHeader } from "@/src/utils/reportHeader";
@@ -169,8 +169,7 @@ export default function RelatorioAbastecimentosScreen() {
   const kmPeriod = (tripsData ?? [])
     .filter((t) => t.date >= startISO && t.date <= endISO)
     .reduce((sum, t) => sum + t.km, 0);
-  const media =
-    ft.dieselLiters > 0 ? (kmPeriod / ft.dieselLiters).toFixed(2).replace(".", ",") : "—";
+  const media = computeConsumption(selected, kmPeriod);
 
   const periodo = `${formatDateBR(startISO)} a ${formatDateBR(endISO)}`;
 
