@@ -64,6 +64,17 @@ O primeiro APK com essa função precisa ser instalado à mão (Releases ou Acti
 
 Código: `frontend/src/components/UpdateChecker.tsx` (usa `expo-intent-launcher` e a permissão `REQUEST_INSTALL_PACKAGES`).
 
+## Assinatura do APK (chave de release)
+Desde a **1.4.1** o APK é assinado com uma **chave de release própria** (a mesma do Empresas e Parks), e não mais com a chave de teste pública do Expo. Com a chave de teste, o Google Play Protect pode bloquear a instalação ("App nocivo bloqueado"), porque o app tem permissão para instalar atualizações.
+
+- A chave fica nos **Secrets** do GitHub (Settings → Secrets and variables → Actions):
+  - `ANDROID_KEYSTORE_BASE64`: o arquivo `empresasparks-release.jks` em Base64
+  - `ANDROID_KEYSTORE_PASSWORD`: a senha da chave (alias `empresasparks`)
+- Sem esses Secrets o build **para com erro** de propósito, para nunca publicar um APK com outra assinatura. O build também confere se o APK saiu assinado com a chave certa.
+- ⚠️ Guarde uma cópia do `.jks` e da senha fora do GitHub. Sem a chave, as próximas versões não instalam por cima.
+- **Mudança para a 1.4.1:** como a assinatura mudou, ela não instala por cima das versões anteriores (nem pela atualização do app). Faça **Backup**, desinstale o "Viagens TESTE", instale a 1.4.1 e restaure o backup. Só uma vez.
+- O app oficial (Emergent/EAS) não muda: ele tem a assinatura própria dele.
+
 ## APK de teste
 Também fica em **Releases** (o mais novo é o "Latest").
 O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` um APK de teste ("Viagens TESTE", pacote `.teste`), que instala ao lado do app oficial. Baixe em **Actions → artefato `controle-viagens-teste-apk`**.

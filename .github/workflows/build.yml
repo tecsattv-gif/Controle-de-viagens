@@ -68,9 +68,77 @@ jobs:
       - name: Gerar projeto Android
         run: npx expo prebuild --platform android --no-install --clean
 
+      # Assina com a chave de release própria (Secrets do GitHub), e não com a
+      # chave de teste pública do Expo — o Play Protect bloqueava o APK por isso.
+      # Sem a chave o build para, para nunca publicar um APK com outra assinatura
+      # (o Android recusaria instalar por cima).
+      - name: Configurar assinatura de release
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::Faltam os Secrets ANDROID_KEYSTORE_BASE64 e/ou ANDROID_KEYSTORE_PASSWORD (veja o README)."
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | tr -d ' \n\r' | base64 -d > android/app/release.jks
+          {
+            echo ""
+            echo "EMPRESAS_STORE_PASSWORD=$KEYSTORE_PASSWORD"
+          } >> android/gradle.properties
+          if [ -f android/app/build.gradle.kts ]; then
+          cat >> android/app/build.gradle.kts <<'EOF'
+
+          // Assinatura de release (adicionada pelo build.yml)
+          android {
+              signingConfigs {
+                  create("release") {
+                      storeFile = file("release.jks")
+                      storeType = "pkcs12"
+                      storePassword = project.property("EMPRESAS_STORE_PASSWORD") as String
+                      keyAlias = "empresasparks"
+                      keyPassword = project.property("EMPRESAS_STORE_PASSWORD") as String
+                  }
+              }
+              buildTypes {
+                  getByName("release") {
+                      signingConfig = signingConfigs.getByName("release")
+                  }
+              }
+          }
+          EOF
+          else
+          cat >> android/app/build.gradle <<'EOF'
+
+          // Assinatura de release (adicionada pelo build.yml)
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("release.jks")
+                      storeType "pkcs12"
+                      storePassword EMPRESAS_STORE_PASSWORD
+                      keyAlias "empresasparks"
+                      keyPassword EMPRESAS_STORE_PASSWORD
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+          fi
+
       - name: Compilar APK
         working-directory: frontend/android
         run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+
+      - name: Conferir assinatura do APK
+        run: |
+          keytool -printcert -jarfile android/app/build/outputs/apk/release/app-release.apk | grep -E "Owner|SHA256"
+          keytool -printcert -jarfile android/app/build/outputs/apk/release/app-release.apk | grep -q "Luiz Alberto Cardoso" \
+            || { echo "::error::APK não foi assinado com a chave de release"; exit 1; }
 
       - uses: actions/upload-artifact@v4
         with:
