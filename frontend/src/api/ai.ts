@@ -150,7 +150,25 @@ function friendlyError(status: number, detail: string): string {
   if (status === 401 || status === 403) return "Chave da IA inválida ou sem permissão. Confira a chave nas configurações do assistente.";
   if (status === 429) return "Limite de uso da IA atingido. Aguarde um pouco ou confira o seu plano/créditos.";
   if (status === 404) return "Modelo de IA não encontrado. Deixe o campo 'Modelo' vazio para usar o padrão.";
+  if (isBusy(status)) return "O serviço de IA está muito ocupado agora. Tente de novo daqui a alguns minutos.";
   return detail || `Erro ${status}`;
+}
+
+// 500/502/503/504: o serviço da IA está sobrecarregado ou com falha temporária.
+function isBusy(status: number): boolean {
+  return status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// Modelos alternativos, usados quando o principal está ocupado ou sem cota.
+const FALLBACK_MODELS: Record<AIProvider, string[]> = {
+  gemini: ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-2.5-flash"],
+  openai: ["gpt-5-mini", "gpt-5-nano"],
+};
+
+function modelChain(provider: AIProvider, first: string): string[] {
+  return [first, ...FALLBACK_MODELS[provider].filter((m) => m !== first)];
 }
 
 // Envia a pergunta e vai devolvendo a resposta aos pedaços (streaming).
@@ -186,38 +204,58 @@ export async function streamAIChat(text: string, onDelta: (chunk: string) => voi
     }, AI_TIMEOUT_MS);
   };
   const timeoutError = () => new Error("A IA demorou demais para responder. Tente de novo com uma pergunta mais curta.");
-  armTimer();
-  let res: Response;
-  try {
-    res = await doFetch(prov.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "text/event-stream",
-        Authorization: `Bearer ${cfg.apiKey}`,
-      },
-      // reasoning_effort "low": os modelos novos "pensam" menos e respondem mais rápido.
-      body: JSON.stringify({ model: cfg.model || prov.defaultModel, messages, stream: true, reasoning_effort: "low" }),
-      signal: controller.signal,
-    } as RequestInit);
-  } catch {
-    if (timer) clearTimeout(timer);
-    if (timedOut) throw timeoutError();
-    throw new Error("Sem ligação à internet. O assistente IA precisa de internet.");
-  }
-  if (!res.ok) {
-    if (timer) clearTimeout(timer);
-    let detail = "";
-    try {
-      const b = await res.json();
-      const e = Array.isArray(b) ? b[0]?.error : b?.error;
-      detail = e?.message || "";
-    } catch {
-      // ignore
+
+  // Quando o serviço está sobrecarregado ("high demand", erro 503/500) ou a cota
+  // grátis de um modelo acabou (429), tenta de novo sozinho e, se preciso, passa
+  // para outro modelo (no Gemini a cota grátis é separada por modelo).
+  const models = modelChain(cfg.provider, cfg.model || prov.defaultModel);
+  let res: Response | undefined;
+  let lastStatus = 0;
+  let lastDetail = "";
+  for (let i = 0; i < models.length; i++) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      armTimer();
+      try {
+        res = await doFetch(prov.url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "text/event-stream",
+            Authorization: `Bearer ${cfg.apiKey}`,
+          },
+          // reasoning_effort "low": os modelos novos "pensam" menos e respondem mais rápido.
+          body: JSON.stringify({ model: models[i], messages, stream: true, reasoning_effort: "low" }),
+          signal: controller.signal,
+        } as RequestInit);
+      } catch {
+        if (timer) clearTimeout(timer);
+        if (timedOut) throw timeoutError();
+        throw new Error("Sem ligação à internet. O assistente IA precisa de internet.");
+      }
+      if (res.ok) break;
+      lastStatus = res.status;
+      lastDetail = "";
+      try {
+        const b = await res.json();
+        const e = Array.isArray(b) ? b[0]?.error : b?.error;
+        lastDetail = e?.message || "";
+      } catch {
+        // ignore
+      }
+      res = undefined;
+      if (lastStatus === 429) break; // cota deste modelo: passa direto ao próximo
+      if (!isBusy(lastStatus)) break;
+      await sleep(1500 * (attempt + 1));
     }
-    if (usingBuiltin && res.status === 429) throw new AIBuiltinKeyError("O limite gratuito do assistente acabou por agora. Para continuar, use a sua própria chave de IA (o Gemini tem faixa grátis).");
-    if (usingBuiltin && (res.status === 401 || res.status === 403)) throw new AIBuiltinKeyError("A chave de IA do aplicativo não está a funcionar. Para continuar, use a sua própria chave de IA.");
-    throw new Error(friendlyError(res.status, detail));
+    if (res) break;
+    if (!isBusy(lastStatus) && lastStatus !== 429 && lastStatus !== 404) break;
+  }
+  if (!res) {
+    if (timer) clearTimeout(timer);
+    if (isBusy(lastStatus)) throw new Error("O serviço de IA está muito ocupado agora. Tente de novo daqui a alguns minutos.");
+    if (usingBuiltin && lastStatus === 429) throw new AIBuiltinKeyError("O limite gratuito do assistente acabou por agora. Para continuar, use a sua própria chave de IA (o Gemini tem faixa grátis).");
+    if (usingBuiltin && (lastStatus === 401 || lastStatus === 403)) throw new AIBuiltinKeyError("A chave de IA do aplicativo não está a funcionar. Para continuar, use a sua própria chave de IA.");
+    throw new Error(friendlyError(lastStatus, lastDetail));
   }
 
   const parts: string[] = [];
@@ -251,7 +289,7 @@ export async function streamAIChat(text: string, onDelta: (chunk: string) => voi
       }
       try {
         const ev = JSON.parse(payload);
-        if (ev.error) throw new Error(ev.error.message || "Erro da IA.");
+        if (ev.error) throw new Error(isBusy(Number(ev.error.code)) || /high demand|overloaded|unavailable/i.test(ev.error.message || "") ? "O serviço de IA está muito ocupado agora. Tente de novo daqui a alguns minutos." : ev.error.message || "Erro da IA.");
         const delta: string = ev.choices?.[0]?.delta?.content || "";
         if (delta) {
           parts.push(delta);

@@ -100,7 +100,7 @@ export default function AssistenteIAScreen() {
       if (e instanceof AINotConfiguredError || e instanceof AIBuiltinKeyError) setShowConfig(true);
       setError(e instanceof AIBuiltinKeyError ? t(e.message) : e?.message?.startsWith("Erro") || !e?.message
         ? t("Não foi possível obter resposta da IA. Verifique a internet e tente novamente.")
-        : e.message);
+        : t(e.message));
     } finally {
       setStreaming(false);
     }
