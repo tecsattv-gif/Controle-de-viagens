@@ -19,7 +19,9 @@ Ao tocar num campo de local, o app grava as coordenadas do GPS e mostra a linha 
 - **Abastecimento:** Local do abastecimento
 - **Controle diário:** Local de início, Local de fim e cada parada (a parada pode ter só as coordenadas, sem nome)
 
-Em cada linha: tocar nas coordenadas abre o Google Maps e 🗑 apaga (com confirmação). Enquanto houver coordenadas, a setinha ↻ fica escondida (não dá para atualizar); ela só aparece quando o local está sem coordenadas — por exemplo, depois de apagar — e aí busca o GPS de novo. O componente é `frontend/src/components/PlaceCoords.tsx`. Nos relatórios do controle diário (tela, PDF e CSV), início, fim e paradas mostram as coordenadas ao lado do local; campos vazios não aparecem.
+Em cada linha: tocar nas coordenadas abre o Google Maps e 🗑 apaga (com confirmação). Enquanto houver coordenadas, a setinha ↻ fica escondida (não dá para atualizar); ela só aparece quando o local está sem coordenadas — por exemplo, depois de apagar — e aí busca o GPS de novo. O componente é `frontend/src/components/PlaceCoords.tsx`.
+
+**Distância até você** (nova na 1.4.0): embaixo das coordenadas de cada local (carregamento, descarga, início/fim do controle diário, paradas e abastecimento) aparece a linha laranja ➤ **"12,4 km de você"**. É a distância **em linha reta** (não pela estrada) e se atualiza sozinha conforme você anda (a cada ~50 m). O GPS só fica ligado enquanto a tela está aberta. Sem GPS ou sem coordenadas, a linha não aparece. O cálculo está em `frontend/src/utils/distancia.ts`. Nos relatórios do controle diário (tela, PDF e CSV), início, fim e paradas mostram as coordenadas ao lado do local; campos vazios não aparecem.
 
 Nos relatórios PDF por período, o separador **•** entre itens sai maior e em negrito.
 

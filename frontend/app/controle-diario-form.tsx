@@ -27,7 +27,7 @@ import {
 } from "@/src/api/dailyLogs";
 import { DateInputField } from "@/src/components/DateInputField";
 import { TextField } from "@/src/components/TextField";
-import { confirmClearCoords, CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
+import { confirmClearCoords, CoordsRow, DistanceLine, useCoordsField } from "@/src/components/PlaceCoords";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import {
@@ -406,6 +406,7 @@ export default function ControleDiarioFormScreen() {
                     </Pressable>
                   ) : null}
                 </View>
+                {!locating[i] ? <DistanceLine coords={stop} /> : null}
               </View>
             ))}
             <Pressable onPress={addStop} style={styles.addBtn} testID="cd-add-stop">

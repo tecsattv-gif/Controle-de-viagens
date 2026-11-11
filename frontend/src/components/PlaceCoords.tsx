@@ -1,11 +1,12 @@
 import * as Location from "expo-location";
-import { ArrowClockwise, MapPin, Trash } from "phosphor-react-native";
+import { ArrowClockwise, MapPin, NavigationArrow, Trash } from "phosphor-react-native";
 import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, Linking, Platform, Pressable, Text, View } from "react-native";
 
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { confirmDelete } from "@/src/utils/confirmDelete";
+import { distanciaAte, useMinhaPosicao } from "@/src/utils/distancia";
 
 export type Coords = { lat: string; lng: string };
 
@@ -82,51 +83,72 @@ export function CoordsRow({ coords, locating, error, onRefresh, onClear, testID 
   const has = !!(coords.lat && coords.lng);
 
   return (
-    <View style={styles.row} testID={testID}>
-      <MapPin size={16} color={colors.brandPrimary} weight="fill" />
-      {locating ? (
-        <>
-          <ActivityIndicator size="small" color={colors.brandPrimary} />
-          <Text style={[styles.text, { flex: 1 }]}>{t("Obtendo localização...")}</Text>
-        </>
-      ) : has ? (
-        <Pressable
-          style={{ flex: 1 }}
-          onPress={() =>
-            Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`)
-          }
-        >
-          <Text style={styles.link}>{`${coords.lat}, ${coords.lng}`}</Text>
-        </Pressable>
-      ) : (
-        <Text style={[styles.text, { flex: 1 }, error ? { color: colors.error } : null]}>
-          {error || t("Sem coordenadas")}
-        </Text>
-      )}
-      {has && !locating && onClear ? (
-        <Pressable onPress={() => confirmClearCoords(t, onClear)} hitSlop={10}>
-          <Trash size={18} color={colors.error} weight="bold" />
-        </Pressable>
-      ) : null}
-      {/* Setinha ↻ só aparece quando não há coordenadas (ex.: depois de apagar na lixeira). */}
-      {Platform.OS !== "web" && !locating && !has ? (
-        <Pressable onPress={onRefresh} hitSlop={10}>
-          <ArrowClockwise size={18} color={colors.brandPrimary} weight="bold" />
-        </Pressable>
-      ) : null}
+    <View style={styles.wrap}>
+      <View style={styles.row} testID={testID}>
+        <MapPin size={16} color={colors.brandPrimary} weight="fill" />
+        {locating ? (
+          <>
+            <ActivityIndicator size="small" color={colors.brandPrimary} />
+            <Text style={[styles.text, { flex: 1 }]}>{t("Obtendo localização...")}</Text>
+          </>
+        ) : has ? (
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() =>
+              Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`)
+            }
+          >
+            <Text style={styles.link}>{`${coords.lat}, ${coords.lng}`}</Text>
+          </Pressable>
+        ) : (
+          <Text style={[styles.text, { flex: 1 }, error ? { color: colors.error } : null]}>
+            {error || t("Sem coordenadas")}
+          </Text>
+        )}
+        {has && !locating && onClear ? (
+          <Pressable onPress={() => confirmClearCoords(t, onClear)} hitSlop={10}>
+            <Trash size={18} color={colors.error} weight="bold" />
+          </Pressable>
+        ) : null}
+        {/* Setinha ↻ só aparece quando não há coordenadas (ex.: depois de apagar na lixeira). */}
+        {Platform.OS !== "web" && !locating && !has ? (
+          <Pressable onPress={onRefresh} hitSlop={10}>
+            <ArrowClockwise size={18} color={colors.brandPrimary} weight="bold" />
+          </Pressable>
+        ) : null}
+      </View>
+      {!locating ? <DistanceLine coords={coords} /> : null}
+    </View>
+  );
+}
+
+// Linha laranja "➤ 12,4 km de você" (em linha reta), logo abaixo das
+// coordenadas. Some sozinha sem GPS ou sem coordenadas.
+export function DistanceLine({ coords }: { coords: { lat?: string | null; lng?: string | null } }) {
+  const styles = useStyles();
+  const { colors } = useTheme();
+  const t = useT();
+  const minha = useMinhaPosicao();
+  const d = distanciaAte(minha, coords);
+  if (!d) return null;
+  return (
+    <View style={styles.distRow}>
+      <NavigationArrow size={15} color={colors.brandPrimary} weight="fill" />
+      <Text style={styles.dist}>{t("{d} de você", { d })}</Text>
     </View>
   );
 }
 
 const useStyles = makeStyles((colors) => ({
+  wrap: { marginTop: -4, marginBottom: 12 },
   row: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     paddingHorizontal: 2,
-    marginTop: -4,
-    marginBottom: 12,
   },
+  distRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 2, marginTop: 6 },
+  dist: { flex: 1, fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.brandPrimary },
   text: { fontFamily: fonts.body, fontSize: 13, color: colors.muted },
   link: { fontFamily: fonts.body, fontSize: 13, color: colors.brandPrimary, textDecorationLine: "underline" },
 }));

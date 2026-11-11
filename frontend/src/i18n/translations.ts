@@ -6,6 +6,7 @@ import type { LangCode } from "./index";
 type Table = Record<string, string>;
 
 const es: Table = {
+  "{d} de você": "a {d} de usted",
   "Backup salvo": "Copia guardada",
   "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Copia guardada en la carpeta \"{f}\" ({r} registro(s), {p} foto(s)). La copia anterior fue reemplazada.",
   "Fazer backup na pasta": "Hacer copia en la carpeta",
@@ -1191,6 +1192,7 @@ const es: Table = {
 };
 
 const en: Table = {
+  "{d} de você": "{d} from you",
   "Backup salvo": "Backup saved",
   "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Backup saved in the folder \"{f}\" ({r} record(s), {p} photo(s)). The previous backup was replaced.",
   "Fazer backup na pasta": "Back up to folder",
@@ -2366,6 +2368,7 @@ const en: Table = {
 };
 
 const fr: Table = {
+  "{d} de você": "à {d} de vous",
   "Backup salvo": "Sauvegarde enregistrée",
   "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Sauvegarde enregistrée dans le dossier \"{f}\" ({r} enregistrement(s), {p} photo(s)). La sauvegarde précédente a été remplacée.",
   "Fazer backup na pasta": "Sauvegarder dans le dossier",
@@ -3543,6 +3546,7 @@ const fr: Table = {
 // pt-PT: only the strings that differ from pt-BR; everything else falls back to
 // the pt-BR source string (which is already Portuguese).
 const ptPT: Table = {
+  "{d} de você": "{d} de si",
   Cadastros: "Registos",
   "Cadastrar Nova Viagem": "Registar Nova Viagem",
   "Cadastrar Frete": "Registar Frete",
