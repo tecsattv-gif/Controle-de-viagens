@@ -1,8 +1,9 @@
-name: Build Android APK (teste)
+name: Build Android APK
 
-# Gera um APK de TESTE do Controle de Viagens.
-# Ele é instalado AO LADO do app oficial (pacote ".teste" e nome "Viagens TESTE"),
-# então dá para testar sem mexer no app que já está no celular.
+# Gera o APK do Controle de Viagens (nome no celular: "Controle de Viagens").
+# O pacote continua terminando em ".teste" de propósito: é o pacote que já está
+# instalado nos celulares, e trocar o pacote impediria a atualização por cima.
+# Por isso ele também instala ao lado do app antigo da Emergent.
 # A versão final para os usuários deve ser gerada pela Emergent/EAS com a
 # mesma assinatura do app oficial.
 
@@ -35,7 +36,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Preparar package.json e app.json (versão de teste)
+      - name: Preparar package.json e app.json
         run: |
           node -e '
             const fs = require("fs");
@@ -44,7 +45,7 @@ jobs:
             delete pkg.packageManager;
             fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2));
             const app = JSON.parse(fs.readFileSync("app.json"));
-            app.expo.name = "Viagens TESTE";
+            app.expo.name = "Controle de Viagens";
             app.expo.android.package = app.expo.android.package + ".teste";
             app.expo.ios.bundleIdentifier = app.expo.ios.bundleIdentifier + ".teste";
             // Esquema próprio: senão o retorno do login Google abre o app oficial.
@@ -147,10 +148,15 @@ jobs:
           grep -q "CN=Luiz Alberto Cardoso" /tmp/certs.txt \
             || { echo "::error::APK não foi assinado com a chave de release"; exit 1; }
 
+      - name: Dar nome ao APK
+        run: |
+          VER=$(node -p 'require("./app.json").expo.version')
+          cp android/app/build/outputs/apk/release/app-release.apk "ControleViagens-${VER}.apk"
+
       - uses: actions/upload-artifact@v4
         with:
-          name: controle-viagens-teste-apk
-          path: frontend/android/app/build/outputs/apk/release/app-release.apk
+          name: controle-viagens-apk
+          path: frontend/ControleViagens-*.apk
 
       # Publica o APK numa Release (build-<número>). O app procura a última
       # Release para avisar que há atualização e instalar com 1 toque.
@@ -158,9 +164,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp android/app/build/outputs/apk/release/app-release.apk ControleViagens-teste.apk
           TAG="build-${GITHUB_RUN_NUMBER}"
           VER=$(node -p 'require("./app.json").expo.version')
-          gh release create "$TAG" ControleViagens-teste.apk \
-            --repo "$GITHUB_REPOSITORY" --title "Controle de Viagens (teste) ${VER}" \
-            --notes "APK de teste. Veja as novidades no README." --latest
+          gh release create "$TAG" "ControleViagens-${VER}.apk" \
+            --repo "$GITHUB_REPOSITORY" --title "Controle de Viagens ${VER}" \
+            --notes "Veja as novidades no README." --latest

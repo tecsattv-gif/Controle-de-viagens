@@ -1,4 +1,4 @@
-# Controle de Viagens — versão 1.1.0 (dados só no telefone)
+# Controle de Viagens — versão 1.4.3 (dados só no telefone)
 
 App de diário de bordo para motoristas: viagens, fretes, despesas, abastecimentos, pneus, troca de óleo, OS, controle diário/mensal de KM e relatórios PDF/CSV. Feito com Expo / React Native.
 
@@ -76,9 +76,10 @@ Desde a **1.4.1** o APK é assinado com uma **chave de release própria** (a mes
 - **Mudança para a 1.4.1:** como a assinatura mudou, ela não instala por cima das versões anteriores (nem pela atualização do app). Faça **Backup**, desinstale o "Viagens TESTE", instale a 1.4.1 e restaure o backup. Só uma vez.
 - O app oficial (Emergent/EAS) não muda: ele tem a assinatura própria dele.
 
-## APK de teste
-Também fica em **Releases** (o mais novo é o "Latest").
-O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` um APK de teste ("Viagens TESTE", pacote `.teste`), que instala ao lado do app oficial. Baixe em **Actions → artefato `controle-viagens-teste-apk`**.
+## APK
+O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` o APK. Baixe em **Releases** (o mais novo é o "Latest") ou em **Actions → artefato `controle-viagens-apk`**. O arquivo se chama `ControleViagens-<versão>.apk` (ex.: `ControleViagens-1.4.3.apk`).
+
+Desde a **1.4.3** o nome no celular é **"Controle de Viagens"** (antes "Viagens TESTE"), e o artefato/arquivo não têm mais "teste" no nome (antes `controle-viagens-teste-apk` com `app-release.apk`). O **pacote** continua `com.emergent.appbuilderdemo.chwn0a.teste` de propósito: é o que já está instalado, e trocar o pacote impediria a atualização por cima (seria outro app). Por isso ele ainda instala ao lado do app antigo da Emergent; se os dois estiverem no celular, os dois aparecem com nome parecido.
 
 ## ⚠️ Antes de publicar
 1. **Mantenha o servidor antigo (pasta `backend/`) ligado** durante a transição (sugestão: 2 a 3 meses), até todos atualizarem. Depois pode desligá-lo: o app não usa mais o servidor.
