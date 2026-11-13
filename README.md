@@ -1,4 +1,4 @@
-# Controle de Viagens — versão 1.4.3 (dados só no telefone)
+# Controle de Viagens — versão 1.4.4 (dados só no telefone)
 
 App de diário de bordo para motoristas: viagens, fretes, despesas, abastecimentos, pneus, troca de óleo, OS, controle diário/mensal de KM e relatórios PDF/CSV. Feito com Expo / React Native.
 
@@ -8,6 +8,7 @@ App de diário de bordo para motoristas: viagens, fretes, despesas, abasteciment
 - **Assistente IA mantido.** Usa a chave do próprio utilizador, configurada na engrenagem da tela do assistente: Google Gemini (tem faixa grátis) ou OpenAI. As perguntas vão direto do telefone para o serviço escolhido.
   - Desde a **1.4.2**, quando o Gemini responde "high demand" / sobrecarregado (erro 500/502/503/504), o app tenta de novo sozinho e passa para outro modelo (`gemini-flash-latest` → `gemini-flash-lite-latest` → `gemini-2.5-flash`; no OpenAI `gpt-5-mini` → `gpt-5-nano`). Se a cota grátis de um modelo acabar (429), também tenta o próximo, porque no Gemini a cota é separada por modelo. Se nada responder, aparece no idioma do app: "O serviço de IA está muito ocupado agora. Tente de novo daqui a alguns minutos." (antes aparecia a mensagem em inglês do Google).
 - **Backup e restauração** (Cadastros → Backup e restauração): um arquivo `.json` com todos os dados e fotos, que pode ser guardado no Drive, WhatsApp ou e-mail.
+  - Desde a **1.4.4**, o assistente responde em **português do Brasil de verdade** quando o idioma do app é Português (Brasil): as instruções da IA (`systemPrompt` em `frontend/src/api/ai.ts`) foram reescritas em pt-BR e ganharam regras de vocabulário por idioma (`LANG_RULES`): "acesse", "arquivo", "celular", "salvar", "pedágio" — antes saía "aceda", "ficheiro", "telemóvel". Com o idioma em Português (Portugal) continua em pt-PT. A tela do assistente também não mostra mais asteriscos soltos (`*Nota…*`): só o **negrito** é desenhado.
 - **Migração automática dos utilizadores atuais.** Na primeira abertura da 1.1.0, o app baixa da conta online todos os dados do utilizador (registros, fotos, logo, idioma/moeda, conversa da IA) e grava no telefone (`src/local/migrate.ts`):
   - se a sessão antiga ainda estiver salva no aparelho, a importação acontece sozinha;
   - se não estiver, o app pede e-mail/senha ou Google **uma única vez**;
@@ -77,7 +78,7 @@ Desde a **1.4.1** o APK é assinado com uma **chave de release própria** (a mes
 - O app oficial (Emergent/EAS) não muda: ele tem a assinatura própria dele.
 
 ## APK
-O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` o APK. Baixe em **Releases** (o mais novo é o "Latest") ou em **Actions → artefato `controle-viagens-apk`**. O arquivo se chama `ControleViagens-<versão>.apk` (ex.: `ControleViagens-1.4.3.apk`).
+O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` o APK. Baixe em **Releases** (o mais novo é o "Latest") ou em **Actions → artefato `controle-viagens-apk`**. O arquivo se chama `ControleViagens-<versão>.apk` (ex.: `ControleViagens-1.4.4.apk`).
 
 Desde a **1.4.3** o nome no celular é **"Controle de Viagens"** (antes "Viagens TESTE"), e o artefato/arquivo não têm mais "teste" no nome (antes `controle-viagens-teste-apk` com `app-release.apk`). O **pacote** continua `com.emergent.appbuilderdemo.chwn0a.teste` de propósito: é o que já está instalado, e trocar o pacote impediria a atualização por cima (seria outro app). Por isso ele ainda instala ao lado do app antigo da Emergent; se os dois estiverem no celular, os dois aparecem com nome parecido.
 

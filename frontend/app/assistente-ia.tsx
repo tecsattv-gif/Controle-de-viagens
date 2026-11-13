@@ -28,9 +28,15 @@ const SUGGESTIONS = [
   "Que pneus precisam de atenção?",
 ];
 
-// Minimal **bold** renderer for assistant answers.
+// Minimal **bold** renderer for assistant answers. Itálico (*texto* / _texto_)
+// não é desenhado: tiramos os marcadores para não sobrar asterisco na tela, e
+// "* item" de lista vira "• item".
 function RichText({ text, style, boldStyle }: { text: string; style: any; boldStyle: any }) {
-  const parts = text.split("**");
+  const cleaned = text
+    .replace(/^(\s*)\*\s+/gm, "$1• ")
+    .replace(/(^|[^*])\*(?!\*)([^*\n]+?)\*(?!\*)/g, "$1$2")
+    .replace(/(^|\s)_([^_\n]+?)_(?=\s|[.,;:!?]|$)/g, "$1$2");
+  const parts = cleaned.split("**");
   return (
     <Text style={style} selectable>
       {parts.map((p, i) => (i % 2 === 1 ? <Text key={i} style={boldStyle}>{p}</Text> : p))}

@@ -121,24 +121,42 @@ async function dataContext(): Promise<string> {
   return JSON.stringify(out).slice(0, 60000);
 }
 
+// Regras de vocabulário por idioma. Sem isto o modelo mistura português de
+// Portugal ("aceda", "ficheiro", "telemóvel") nas respostas em pt-BR.
+const LANG_RULES: Record<string, string> = {
+  "pt-BR":
+    "Escreva EXCLUSIVAMENTE em português do Brasil, com vocabulário e gramática brasileiros: " +
+    "'acesse' (nunca 'aceda'), 'arquivo' (nunca 'ficheiro'), 'celular' ou 'telefone' (nunca 'telemóvel'), " +
+    "'salvar/salvo' (nunca 'guardar/guardado' para arquivos), 'usuário' (nunca 'utilizador'), " +
+    "'registro/cadastro' (nunca 'registo'), 'pedágio' (nunca 'portagem'), 'tela' (nunca 'ecrã'), " +
+    "'aplicativo' (nunca 'aplicação'), 'caminhão' (nunca 'camião'), gerúndio ('está fazendo', nunca 'está a fazer'). " +
+    "Trate o usuário por 'você'.",
+  "pt-PT":
+    "Escreva em português de Portugal (ex.: 'aceda', 'ficheiro', 'telemóvel', 'guardar', 'utilizador', 'registo', 'portagem', 'ecrã').",
+};
+
 async function systemPrompt(): Promise<string> {
   const s = await loadSettings();
-  const lang = LANG[s.app_language] || "português";
+  const code = LANG[s.app_language] ? s.app_language : "pt-BR";
+  const lang = LANG[code];
   return (
     "Você é o Assistente IA do aplicativo 'Controle de Viagens', usado por motoristas e transportadores. " +
     `Responda sempre em ${lang}, de forma curta, clara e prática (use listas quando ajudar). ` +
+    (LANG_RULES[code] ? LANG_RULES[code] + " " : "") +
+    "Use os nomes dos menus e botões do app exatamente como aparecem nesse idioma. " +
+    "Para destacar, use apenas **negrito**; não use itálico, títulos (#) nem tabelas. " +
     `Hoje é ${new Date().toISOString().slice(0, 10)}. ` +
-    "O app tem: Resumo (dashboard), Viagens (KM inicial/final, origem, destino, frete, diesel, ARLA, portagens), " +
-    "Fretes, Despesas (abastecimentos, portagens, outras despesas, manutenção, Troca de Óleo e Filtros, " +
+    "O app tem: Resumo (dashboard), Viagens (KM inicial/final, origem, destino, frete, diesel, ARLA, pedágios), " +
+    "Fretes, Despesas (abastecimentos, pedágios, outras despesas, manutenção, Troca de Óleo e Filtros, " +
     "OS – Ordem de Serviço, Controle de Pneus com mapa de eixos e sulco), Controle Diário e Mensal de KM, " +
     "Relatórios com PDF/CSV, Cadastros (motoristas, veículos, reboques, empresa/logo, cores, idioma, moeda, " +
-    "backup e restauração) e Central de Ajuda. Os dados ficam guardados só no telefone do utilizador. " +
-    "Você pode explicar como usar o app e analisar os dados do utilizador abaixo (JSON, mais recentes primeiro, " +
-    "até 60 por tipo). KM rodados de uma viagem = km_end - km_start (km_end 0 = viagem em aberto). " +
+    "backup e restauração) e Central de Ajuda. Os dados ficam salvos só no telefone do usuário. " +
+    "Você pode explicar como usar o app e analisar os dados do usuário abaixo (JSON, mais recentes primeiro, " +
+    "até 60 por tipo; no JSON, 'portagens' são os pedágios). KM rodados de uma viagem = km_end - km_start (km_end 0 = viagem em aberto). " +
     "Os valores têm moedas próprias (EUR/BRL); nunca converta nem misture moedas. " +
     "Se a informação não estiver nos dados, diga isso; não invente números. " +
-    "Você não pode criar, alterar nem apagar registos — oriente o utilizador a fazê-lo no app.\n\n" +
-    `DADOS DO UTILIZADOR:\n${await dataContext()}`
+    "Você não pode criar, alterar nem apagar registros — oriente o usuário a fazer isso no app.\n\n" +
+    `DADOS DO USUÁRIO:\n${await dataContext()}`
   );
 }
 
