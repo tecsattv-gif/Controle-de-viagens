@@ -250,7 +250,7 @@ export default function ViagemFormScreen() {
           locating={loadGps.locating}
           error={loadGps.error}
           onRefresh={() => loadGps.capture(true)}
-              onClear={loadGps.clear}
+              onClear={loadGps.clear} onManual={loadGps.setCoords}
           testID="coords-loading"
         />
         <TextField
@@ -266,7 +266,7 @@ export default function ViagemFormScreen() {
           locating={unloadGps.locating}
           error={unloadGps.error}
           onRefresh={() => unloadGps.capture(true)}
-              onClear={unloadGps.clear}
+              onClear={unloadGps.clear} onManual={unloadGps.setCoords}
           testID="coords-unloading"
         />
         <TextField

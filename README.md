@@ -1,4 +1,4 @@
-# Controle de Viagens — versão 1.4.4 (dados só no telefone)
+# Controle de Viagens — versão 1.5.0 (dados só no telefone)
 
 App de diário de bordo para motoristas: viagens, fretes, despesas, abastecimentos, pneus, troca de óleo, OS, controle diário/mensal de KM e relatórios PDF/CSV. Feito com Expo / React Native.
 
@@ -21,7 +21,9 @@ Ao tocar num campo de local, o app grava as coordenadas do GPS e mostra a linha 
 - **Abastecimento:** Local do abastecimento
 - **Controle diário:** Local de início, Local de fim e cada parada (a parada pode ter só as coordenadas, sem nome)
 
-Em cada linha: tocar nas coordenadas abre o Google Maps e 🗑 apaga (com confirmação). Enquanto houver coordenadas, a setinha ↻ fica escondida (não dá para atualizar); ela só aparece quando o local está sem coordenadas — por exemplo, depois de apagar — e aí busca o GPS de novo. O componente é `frontend/src/components/PlaceCoords.tsx`.
+Em cada linha: tocar nas coordenadas abre o Google Maps e 🗑 apaga (com confirmação).
+
+**Inserir coordenadas à mão** (nova na 1.5.0): ao lado da lixeira / da setinha ↻ há o lápis ✏️, em todos os locais (carregamento, descarga, abastecimento, início/fim do controle diário e cada parada). Ele abre a janela **Inserir coordenadas** com Latitude e Longitude; dá para digitar ou **colar de uma vez** o par copiado do Google Maps (`48.856600, 2.352200` — preenche os dois campos sozinho). Aceita vírgula decimal (`48,8566`). O app confere se a latitude está entre -90 e 90 e a longitude entre -180 e 180, e grava com 6 casas decimais. O lápis aparece sempre (com ou sem coordenadas), então serve também para corrigir as que o GPS gravou. Código: `ManualCoordsButton` em `frontend/src/components/PlaceCoords.tsx`. Enquanto houver coordenadas, a setinha ↻ fica escondida (não dá para atualizar); ela só aparece quando o local está sem coordenadas — por exemplo, depois de apagar — e aí busca o GPS de novo. O componente é `frontend/src/components/PlaceCoords.tsx`.
 
 **Distância até você** (nova na 1.4.0): embaixo das coordenadas de cada local (carregamento, descarga, início/fim do controle diário, paradas e abastecimento) aparece a linha laranja ➤ **"12,4 km de você"**. É a distância **em linha reta** (não pela estrada) e se atualiza sozinha conforme você anda (a cada ~50 m). O GPS só fica ligado enquanto a tela está aberta. Sem GPS ou sem coordenadas, a linha não aparece. O cálculo está em `frontend/src/utils/distancia.ts`. Nos relatórios do controle diário (tela, PDF e CSV), início, fim e paradas mostram as coordenadas ao lado do local; campos vazios não aparecem.
 
@@ -78,7 +80,7 @@ Desde a **1.4.1** o APK é assinado com uma **chave de release própria** (a mes
 - O app oficial (Emergent/EAS) não muda: ele tem a assinatura própria dele.
 
 ## APK
-O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` o APK. Baixe em **Releases** (o mais novo é o "Latest") ou em **Actions → artefato `controle-viagens-apk`**. O arquivo se chama `ControleViagens-<versão>.apk` (ex.: `ControleViagens-1.4.4.apk`).
+O GitHub Actions (`.github/workflows/build.yml`) gera a cada envio para `main` o APK. Baixe em **Releases** (o mais novo é o "Latest") ou em **Actions → artefato `controle-viagens-apk`**. O arquivo se chama `ControleViagens-<versão>.apk` (ex.: `ControleViagens-1.5.0.apk`).
 
 Desde a **1.4.3** o nome no celular é **"Controle de Viagens"** (antes "Viagens TESTE"), e o artefato/arquivo não têm mais "teste" no nome (antes `controle-viagens-teste-apk` com `app-release.apk`). O **pacote** continua `com.emergent.appbuilderdemo.chwn0a.teste` de propósito: é o que já está instalado, e trocar o pacote impediria a atualização por cima (seria outro app). Por isso ele ainda instala ao lado do app antigo da Emergent; se os dois estiverem no celular, os dois aparecem com nome parecido.
 

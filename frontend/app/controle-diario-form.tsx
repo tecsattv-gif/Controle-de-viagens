@@ -27,7 +27,7 @@ import {
 } from "@/src/api/dailyLogs";
 import { DateInputField } from "@/src/components/DateInputField";
 import { TextField } from "@/src/components/TextField";
-import { confirmClearCoords, CoordsRow, DistanceLine, useCoordsField } from "@/src/components/PlaceCoords";
+import { confirmClearCoords, CoordsRow, DistanceLine, ManualCoordsButton, useCoordsField } from "@/src/components/PlaceCoords";
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import {
@@ -262,7 +262,7 @@ export default function ControleDiarioFormScreen() {
               locating={startGps.locating}
               error={startGps.error}
               onRefresh={() => startGps.capture(true)}
-              onClear={startGps.clear}
+              onClear={startGps.clear} onManual={startGps.setCoords}
               testID="cd-coords-start"
             />
             <View style={styles.row}>
@@ -305,7 +305,7 @@ export default function ControleDiarioFormScreen() {
               locating={endGps.locating}
               error={endGps.error}
               onRefresh={() => endGps.capture(true)}
-              onClear={endGps.clear}
+              onClear={endGps.clear} onManual={endGps.setCoords}
               testID="cd-coords-end"
             />
             <View style={styles.row}>
@@ -386,6 +386,15 @@ export default function ControleDiarioFormScreen() {
                   ) : (
                     <Text style={[styles.coordText, { flex: 1 }]}>{t("Sem coordenadas")}</Text>
                   )}
+                  {!locating[i] ? (
+                    <ManualCoordsButton
+                      coords={stop}
+                      onSave={(c) =>
+                        setStops((prev) => prev.map((x, idx) => (idx === i ? { ...x, lat: c.lat, lng: c.lng } : x)))
+                      }
+                      testID={`cd-stop-manual-${i}`}
+                    />
+                  ) : null}
                   {stop.lat && stop.lng && !locating[i] ? (
                     <Pressable
                       onPress={() =>

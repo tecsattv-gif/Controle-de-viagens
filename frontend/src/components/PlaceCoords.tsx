@@ -1,7 +1,7 @@
 import * as Location from "expo-location";
-import { ArrowClockwise, MapPin, NavigationArrow, Trash } from "phosphor-react-native";
+import { ArrowClockwise, MapPin, NavigationArrow, PencilSimple, Trash, X } from "phosphor-react-native";
 import { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, Linking, Platform, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, Text, TextInput, View } from "react-native";
 
 import { useT } from "@/src/i18n";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
@@ -72,11 +72,13 @@ type Props = {
   onRefresh: () => void;
   // Apaga as coordenadas (pede confirmação). Sem ele, o botão não aparece.
   onClear?: () => void;
+  // Grava coordenadas digitadas à mão (botão ✏️). Sem ele, o botão não aparece.
+  onManual?: (c: Coords) => void;
   testID?: string;
 };
 
 // Linha "📍 coordenadas" mostrada logo abaixo do campo de local.
-export function CoordsRow({ coords, locating, error, onRefresh, onClear, testID }: Props) {
+export function CoordsRow({ coords, locating, error, onRefresh, onClear, onManual, testID }: Props) {
   const styles = useStyles();
   const { colors } = useTheme();
   const t = useT();
@@ -105,6 +107,9 @@ export function CoordsRow({ coords, locating, error, onRefresh, onClear, testID 
             {error || t("Sem coordenadas")}
           </Text>
         )}
+        {!locating && onManual ? (
+          <ManualCoordsButton coords={coords} onSave={onManual} testID={testID ? `${testID}-manual` : undefined} />
+        ) : null}
         {has && !locating && onClear ? (
           <Pressable onPress={() => confirmClearCoords(t, onClear)} hitSlop={10}>
             <Trash size={18} color={colors.error} weight="bold" />
@@ -119,6 +124,143 @@ export function CoordsRow({ coords, locating, error, onRefresh, onClear, testID 
       </View>
       {!locating ? <DistanceLine coords={coords} /> : null}
     </View>
+  );
+}
+
+// Converte o texto digitado em número (aceita vírgula decimal: "48,8566").
+function parseNum(v: string): number | null {
+  const s = v.trim().replace(",", ".");
+  if (!/^-?\d+(\.\d+)?$/.test(s)) return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Reconhece "lat, lng" colado de uma vez (ex.: copiado do Google Maps):
+// "48.8566, 2.3522" · "48.8566,2.3522" · "48,8566 2,3522" · "48,8566; 2,3522".
+export function splitPastedCoords(v: string): Coords | null {
+  const t = v.trim();
+  const m =
+    // Vírgula como separador só quando os números usam ponto ("48.85,2.35")
+    // ou há espaço depois dela ("48, 2"); "48,8566" sozinho é vírgula decimal.
+    t.match(/^(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)$/) ||
+    t.match(/^(-?\d+(?:\.\d+)?),\s+(-?\d+(?:\.\d+)?)$/) ||
+    t.match(/^(-?\d+(?:[.,]\d+)?)\s*[;\s]\s*(-?\d+(?:[.,]\d+)?)$/);
+  return m ? { lat: m[1], lng: m[2] } : null;
+}
+
+// Botão ✏️ que abre uma janelinha para digitar (ou colar) as coordenadas à mão.
+export function ManualCoordsButton({
+  coords,
+  onSave,
+  testID,
+}: {
+  coords: { lat?: string | null; lng?: string | null };
+  onSave: (c: Coords) => void;
+  testID?: string;
+}) {
+  const styles = useStyles();
+  const { colors } = useTheme();
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+
+  const show = () => {
+    setLat(coords.lat || "");
+    setLng(coords.lng || "");
+    setErr(null);
+    setOpen(true);
+  };
+
+  // Se colar "lat, lng" num dos campos, preenche os dois.
+  const onChange = (v: string, set: (s: string) => void) => {
+    const pair = splitPastedCoords(v);
+    if (pair) {
+      setLat(pair.lat);
+      setLng(pair.lng);
+    } else {
+      set(v);
+    }
+    setErr(null);
+  };
+
+  const save = () => {
+    const a = parseNum(lat);
+    const b = parseNum(lng);
+    if (a === null || b === null) {
+      setErr(t("Digite a latitude e a longitude (ex.: 48.856600 e 2.352200)."));
+      return;
+    }
+    if (a < -90 || a > 90) {
+      setErr(t("A latitude deve estar entre -90 e 90."));
+      return;
+    }
+    if (b < -180 || b > 180) {
+      setErr(t("A longitude deve estar entre -180 e 180."));
+      return;
+    }
+    onSave({ lat: a.toFixed(6), lng: b.toFixed(6) });
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <Pressable onPress={show} hitSlop={10} testID={testID} accessibilityLabel={t("Inserir coordenadas")}>
+        <PencilSimple size={18} color={colors.brandPrimary} weight="bold" />
+      </Pressable>
+      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+          <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
+            <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+              <View style={styles.sheetHead}>
+                <Text style={styles.sheetTitle}>{t("Inserir coordenadas")}</Text>
+                <Pressable onPress={() => setOpen(false)} hitSlop={10}>
+                  <X size={22} color={colors.onSurface} weight="bold" />
+                </Pressable>
+              </View>
+              <Text style={styles.hint}>
+                {t("Digite ou cole as coordenadas (ex.: copiadas do Google Maps: 48.856600, 2.352200).")}
+              </Text>
+              <Text style={styles.label}>{t("Latitude")}</Text>
+              <TextInput
+                value={lat}
+                onChangeText={(v) => onChange(v, setLat)}
+                placeholder="48.856600"
+                placeholderTextColor={colors.muted}
+                keyboardType="numbers-and-punctuation"
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.input}
+                testID={testID ? `${testID}-lat` : undefined}
+              />
+              <Text style={styles.label}>{t("Longitude")}</Text>
+              <TextInput
+                value={lng}
+                onChangeText={(v) => onChange(v, setLng)}
+                placeholder="2.352200"
+                placeholderTextColor={colors.muted}
+                keyboardType="numbers-and-punctuation"
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.input}
+                onSubmitEditing={save}
+                testID={testID ? `${testID}-lng` : undefined}
+              />
+              {err ? <Text style={styles.err}>{err}</Text> : null}
+              <View style={styles.btnRow}>
+                <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => setOpen(false)}>
+                  <Text style={styles.btnGhostText}>{t("Cancelar")}</Text>
+                </Pressable>
+                <Pressable style={[styles.btn, styles.btnPrimary]} onPress={save} testID={testID ? `${testID}-save` : undefined}>
+                  <Text style={styles.btnPrimaryText}>{t("Salvar")}</Text>
+                </Pressable>
+              </View>
+            </Pressable>
+          </Pressable>
+        </KeyboardAvoidingView>
+      </Modal>
+    </>
   );
 }
 
@@ -151,6 +293,41 @@ const useStyles = makeStyles((colors) => ({
   dist: { flex: 1, fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.brandPrimary },
   text: { fontFamily: fonts.body, fontSize: 13, color: colors.muted },
   link: { fontFamily: fonts.body, fontSize: 13, color: colors.brandPrimary, textDecorationLine: "underline" },
+  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
+  sheet: {
+    width: "100%",
+    maxWidth: 720,
+    alignSelf: "center",
+    backgroundColor: colors.surfaceSecondary,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
+  sheetHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 8 },
+  sheetTitle: { fontFamily: fonts.displayBold, fontSize: 20, color: colors.onSurface },
+  hint: { fontFamily: fonts.body, fontSize: 13, color: colors.muted, marginBottom: 12 },
+  label: { fontFamily: fonts.body, fontSize: 13, color: colors.onSurfaceSecondary, marginBottom: 6, marginTop: 4 },
+  input: {
+    fontFamily: fonts.body,
+    fontSize: 16,
+    color: colors.onSurface,
+    backgroundColor: colors.surfaceTertiary,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 8,
+  },
+  err: { fontFamily: fonts.body, fontSize: 13, color: colors.error, marginTop: 4 },
+  btnRow: { flexDirection: "row", gap: 12, marginTop: 16 },
+  btn: { flex: 1, borderRadius: 10, paddingVertical: 12, alignItems: "center" },
+  btnGhost: { borderWidth: 1, borderColor: colors.border },
+  btnGhostText: { fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.onSurface },
+  btnPrimary: { backgroundColor: colors.brandPrimary },
+  btnPrimaryText: { fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.onBrandPrimary },
 }));
 
 // Confirmação antes de apagar as coordenadas.

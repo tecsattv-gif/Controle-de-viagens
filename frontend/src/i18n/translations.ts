@@ -6,6 +6,13 @@ import type { LangCode } from "./index";
 type Table = Record<string, string>;
 
 const es: Table = {
+  "Inserir coordenadas": "Introducir coordenadas",
+  "Latitude": "Latitud",
+  "Longitude": "Longitud",
+  "Digite ou cole as coordenadas (ex.: copiadas do Google Maps: 48.856600, 2.352200).": "Escriba o pegue las coordenadas (ej.: copiadas de Google Maps: 48.856600, 2.352200).",
+  "Digite a latitude e a longitude (ex.: 48.856600 e 2.352200).": "Escriba la latitud y la longitud (ej.: 48.856600 y 2.352200).",
+  "A latitude deve estar entre -90 e 90.": "La latitud debe estar entre -90 y 90.",
+  "A longitude deve estar entre -180 e 180.": "La longitud debe estar entre -180 y 180.",
   "{d} de você": "a {d} de usted",
   "Backup salvo": "Copia guardada",
   "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Copia guardada en la carpeta \"{f}\" ({r} registro(s), {p} foto(s)). La copia anterior fue reemplazada.",
@@ -1193,6 +1200,13 @@ const es: Table = {
 };
 
 const en: Table = {
+  "Inserir coordenadas": "Enter coordinates",
+  "Latitude": "Latitude",
+  "Longitude": "Longitude",
+  "Digite ou cole as coordenadas (ex.: copiadas do Google Maps: 48.856600, 2.352200).": "Type or paste the coordinates (e.g. copied from Google Maps: 48.856600, 2.352200).",
+  "Digite a latitude e a longitude (ex.: 48.856600 e 2.352200).": "Enter the latitude and longitude (e.g. 48.856600 and 2.352200).",
+  "A latitude deve estar entre -90 e 90.": "Latitude must be between -90 and 90.",
+  "A longitude deve estar entre -180 e 180.": "Longitude must be between -180 and 180.",
   "{d} de você": "{d} from you",
   "Backup salvo": "Backup saved",
   "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Backup saved in the folder \"{f}\" ({r} record(s), {p} photo(s)). The previous backup was replaced.",
@@ -2370,6 +2384,13 @@ const en: Table = {
 };
 
 const fr: Table = {
+  "Inserir coordenadas": "Saisir les coordonnées",
+  "Latitude": "Latitude",
+  "Longitude": "Longitude",
+  "Digite ou cole as coordenadas (ex.: copiadas do Google Maps: 48.856600, 2.352200).": "Saisissez ou collez les coordonnées (ex. : copiées de Google Maps : 48.856600, 2.352200).",
+  "Digite a latitude e a longitude (ex.: 48.856600 e 2.352200).": "Saisissez la latitude et la longitude (ex. : 48.856600 et 2.352200).",
+  "A latitude deve estar entre -90 e 90.": "La latitude doit être comprise entre -90 et 90.",
+  "A longitude deve estar entre -180 e 180.": "La longitude doit être comprise entre -180 et 180.",
   "{d} de você": "à {d} de vous",
   "Backup salvo": "Sauvegarde enregistrée",
   "Backup salvo na pasta \"{f}\" ({r} registro(s), {p} foto(s)). O backup anterior foi substituído.": "Sauvegarde enregistrée dans le dossier \"{f}\" ({r} enregistrement(s), {p} photo(s)). La sauvegarde précédente a été remplacée.",
@@ -3549,6 +3570,13 @@ const fr: Table = {
 // pt-PT: only the strings that differ from pt-BR; everything else falls back to
 // the pt-BR source string (which is already Portuguese).
 const ptPT: Table = {
+  "Inserir coordenadas": "Inserir coordenadas",
+  "Latitude": "Latitude",
+  "Longitude": "Longitude",
+  "Digite ou cole as coordenadas (ex.: copiadas do Google Maps: 48.856600, 2.352200).": "Escreva ou cole as coordenadas (ex.: copiadas do Google Maps: 48.856600, 2.352200).",
+  "Digite a latitude e a longitude (ex.: 48.856600 e 2.352200).": "Escreva a latitude e a longitude (ex.: 48.856600 e 2.352200).",
+  "A latitude deve estar entre -90 e 90.": "A latitude deve estar entre -90 e 90.",
+  "A longitude deve estar entre -180 e 180.": "A longitude deve estar entre -180 e 180.",
   "{d} de você": "{d} de si",
   Cadastros: "Registos",
   "Cadastrar Nova Viagem": "Registar Nova Viagem",

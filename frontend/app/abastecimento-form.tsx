@@ -220,7 +220,7 @@ export default function AbastecimentoFormScreen() {
               locating={placeGps.locating}
               error={placeGps.error}
               onRefresh={() => placeGps.capture(true)}
-              onClear={placeGps.clear}
+              onClear={placeGps.clear} onManual={placeGps.setCoords}
               testID="coords-station-place"
             />
 
